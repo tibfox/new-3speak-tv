@@ -17,23 +17,47 @@ import { PiUserSwitchBold } from "react-icons/pi";
 import { RiProfileLine } from "react-icons/ri";
 import apple_icon from "../../assets/image/app-store.png"
 import play_store from "../../assets/image/playstore.png"
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import SearchList from "./SearchList";
 import SearchList_Sm from "./SearchList_Sm";
-function Nav({ setSideBar, toggleProfileNav, globalClose, setGlobalClose }) {
+function Nav({ setSideBar, toggleProfileNav }) {
   const { authenticated, LogOut, user } = useAppStore();
   const [nav, setNav] = useState(false)
   const [searchTerm, setSearchTerm] = useState('');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const searchBoxRef = useRef(null);
   const [searchTermSm, setSearchTermSm] = useState('');
-  // const [query, setQuery] =useState("")
+  const [isDropdownOpensm, setIsDropdownOpensm] = useState(false);
+  const searchBoxRefsm = useRef(null);
+   const sideNavRef = useRef(null); // Ref for the side nav container
+  const menuIconRef = useRef(null); // Ref for the menu toggle button
 
-  // const getUserProfile = useGetMyQuery()?.profile;
-  // console.log("User profile", getUserProfile);
-  // console.log(getUserProfile.images.avatar);
+
+
   const handleNav = () =>{
     setNav((prev) => !prev);
-    // console.log(nav)
    }
+
+   useEffect(() => {
+  const handleClickOutside = (e) => {
+    // Check if:
+    // 1. Nav is open
+    // 2. Click is outside side nav
+    // 3. Click is outside menu icon (if ref exists)
+    if (nav && 
+        sideNavRef.current && 
+        !sideNavRef.current.contains(e.target) && 
+        (!menuIconRef.current || !menuIconRef.current.contains(e.target))) {
+      setNav(false);
+    }
+  };
+
+  document.addEventListener('click', handleClickOutside, true);
+
+  return () => {
+    document.removeEventListener('click', handleClickOutside, true);
+  };
+}, [nav]);
 
 
 
@@ -45,28 +69,28 @@ function Nav({ setSideBar, toggleProfileNav, globalClose, setGlobalClose }) {
       </div>
       
       <div className="phone-nav-left" >
-        <GiToggles size={25} className="menu-icon" onClick={handleNav}/>
+        <GiToggles size={25} className="menu-icon" onClick={handleNav} ref={menuIconRef}/>
         <Link to="/"><img className="logo" src={logo} alt="" /></Link>
       </div>
       <div className="nav-middle flex-dev">
-        <div className="search-box">
-          <input onFocus={() => setGlobalClose(false)} value={searchTerm} type="text" placeholder="Search users or communities..." onChange={(e)=> setSearchTerm(e.target.value.toLowerCase()) } />
+        <div className="search-box" ref={searchBoxRef}>
+          <input onFocus={() => setIsDropdownOpen(true)} value={searchTerm} type="text" placeholder="Search users or communities..." onChange={(e)=> setSearchTerm(e.target.value.toLowerCase()) } />
           <CiSearch className="search-icon" />
         </div>
-        <SearchList searchTerm={searchTerm} setSearchTerm={setSearchTerm} globalClose={globalClose} setGlobalClose={setGlobalClose} />
+        <SearchList searchTerm={searchTerm} setSearchTerm={setSearchTerm} searchBoxRef={searchBoxRef} isDropdownOpen={isDropdownOpen} setIsDropdownOpen={setIsDropdownOpen} />
       </div>
-      <div className={nav ? "side-nav" : "side-nav-else"}>
+      <div className={nav ? "side-nav" : "side-nav-else"} ref={sideNavRef}>
       <AiOutlineClose className="close-nav" onClick={handleNav}/> 
 
       <div >
-            <div className="shortcut-links">
+            <div className="shortcut-links" >
 
-            <div className="search-wrap-sm">
-                <div className="wrap">
-                 <input type="text" value={searchTermSm}  onChange={(e)=> setSearchTermSm(e.target.value) } />
+            <div className="search-wrap-sm" >
+                <div className="wrap" ref={searchBoxRefsm}>
+                 <input onFocus={() => setIsDropdownOpensm(true)} type="text" value={searchTermSm}  onChange={(e)=> setSearchTermSm(e.target.value.toLowerCase()) } />
                  <CiSearch size={20} color="green" />
                 </div>
-                <SearchList_Sm searchTerm={searchTermSm} setSearchTerm={setSearchTermSm} handleNav={handleNav} />
+                <SearchList_Sm searchTerm={searchTermSm} setSearchTerm={setSearchTermSm} handleNav={handleNav} searchBoxRefsm={searchBoxRefsm} isDropdownOpensm={isDropdownOpensm} setIsDropdownOpensm={setIsDropdownOpensm} />
               </div>
               <Link to="/" className="side-link-n" onClick={handleNav}>
                 <MdOutlineDashboard className="icon" /> <span>Home</span>

@@ -14,8 +14,9 @@ const HIVE_NODES = [
 const client = new Client(HIVE_NODES);
 
 
-function SearchList_Sm({searchTerm, setSearchTerm, handleNav}) {
+function SearchList_Sm({searchTerm, setSearchTerm, handleNav, setIsDropdownOpensm, isDropdownOpensm, searchBoxRefsm}) {
      const navigate = useNavigate();
+     const tooltipRef = useRef(null);
       const [searchResults, setSearchResults] = useState({
         users: [],
         tags: [],
@@ -45,6 +46,28 @@ function SearchList_Sm({searchTerm, setSearchTerm, handleNav}) {
             }
           };
         }, [searchTerm]);
+
+        useEffect(() => {
+            const handleClickOutside = (e) => {
+              // Check if click is outside both dropdown and search box
+              if (tooltipRef.current && 
+                  !tooltipRef.current.contains(e.target) && 
+                  searchBoxRefsm.current && 
+                  !searchBoxRefsm.current.contains(e.target)) {
+                setIsDropdownOpensm(false);
+                setSearchTerm("");
+        
+              }
+            };
+        
+            if (isDropdownOpensm) {
+              document.addEventListener('mousedown', handleClickOutside);
+            }
+        
+            return () => {
+              document.removeEventListener('mousedown', handleClickOutside);
+            };
+          }, [isDropdownOpensm]);
       
         const searchAllHiveItems = async (term) => {
           setIsSearching(true);
@@ -153,8 +176,8 @@ function SearchList_Sm({searchTerm, setSearchTerm, handleNav}) {
 
   return (
     <>
-    {isSearching && <div className="search-list-sm center"><TailChase size="10" speed="1.75" color="red" /></div>}
-    {hasResults() && (<div className='search-list-sm'>
+    {isDropdownOpensm && isSearching && <div className="search-list-sm center"><TailChase size="10" speed="1.75" color="red" /></div>}
+    {isDropdownOpensm &&hasResults() && (<div className='search-list-sm' ref={tooltipRef}>
         <div className="search-results">
           {searchResults.users.length > 0 && (
             <div className="result-section">

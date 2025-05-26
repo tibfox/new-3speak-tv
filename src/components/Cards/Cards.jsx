@@ -27,7 +27,10 @@ function Cards({
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [activeTooltipIndex, setActiveTooltipIndex] = useState(null);
-  const [selectedPost, setSelectedPost] = useState({ username: "", permlink: "" });
+  const [selectedPost, setSelectedPost] = useState({
+    username: "",
+    permlink: "",
+  });
   const [votedPosts, setVotedPosts] = useState([]);
   const [cardStyle, setCardStyle] = useState(true);
 
@@ -67,9 +70,12 @@ function Cards({
             <div className="img-wrap">
               <img
                 src={
-                  video.spkvideo?.thumbnail_url === "https://media.3speak.tv/jevmpseu/thumbnails/default.png"
+                  video.spkvideo?.thumbnail_url ===
+                  "https://media.3speak.tv/jevmpseu/thumbnails/default.png"
                     ? img
-                    : `https://images.hive.blog/320x0/${video.spkvideo?.thumbnail_url ?? ""}`
+                    : `https://images.hive.blog/320x0/${
+                        video.spkvideo?.thumbnail_url ?? ""
+                      }`
                 }
                 alt="thumbnail"
                 onError={(e) => (e.currentTarget.src = defaultThumbnail)}
@@ -112,10 +118,16 @@ function Cards({
                     className={`icon ${hasVoted ? "voted" : ""}`}
                     onClick={(e) => {
                       e.preventDefault();
-                      toggleTooltip(video.author.username, video.permlink, index);
+                      toggleTooltip(
+                        video.author.username,
+                        video.permlink,
+                        index
+                      );
                     }}
                   />
-                  <span>${video.stats?.total_hive_reward.toFixed(2) ?? "0.00"}</span>
+                  <span>
+                    ${video.stats?.total_hive_reward.toFixed(2) ?? "0.00"}
+                  </span>
                 </div>
 
                 <div className="wrap flex-div">

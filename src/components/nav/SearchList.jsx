@@ -14,8 +14,11 @@ const HIVE_NODES = [
 const client = new Client(HIVE_NODES);
 
 
-function SearchList({searchTerm, setSearchTerm}) {
+function SearchList({searchTerm, setSearchTerm, setIsDropdownOpen, isDropdownOpen, searchBoxRef}) {
      const navigate = useNavigate();
+    //  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+     const tooltipRef = useRef(null);
+    //  const searchBoxRef = useRef(null);
       const [searchResults, setSearchResults] = useState({
         users: [],
         tags: [],
@@ -45,6 +48,28 @@ function SearchList({searchTerm, setSearchTerm}) {
             }
           };
         }, [searchTerm]);
+
+        useEffect(() => {
+    const handleClickOutside = (e) => {
+      // Check if click is outside both dropdown and search box
+      if (tooltipRef.current && 
+          !tooltipRef.current.contains(e.target) && 
+          searchBoxRef.current && 
+          !searchBoxRef.current.contains(e.target)) {
+        setIsDropdownOpen(false);
+        setSearchTerm("");
+
+      }
+    };
+
+    if (isDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isDropdownOpen]);
       
         const searchAllHiveItems = async (term) => {
           setIsSearching(true);
@@ -150,8 +175,8 @@ function SearchList({searchTerm, setSearchTerm}) {
 
   return (
     <>
-    {isSearching && <div className="search-list center"><TailChase size="20" speed="1.75" color="red" /></div>}
-    {hasResults() && (<div className='search-list'>
+    {isDropdownOpen && isSearching && <div className="search-list center"><TailChase size="20" speed="1.75" color="red" /></div>}
+    {isDropdownOpen && hasResults() && (<div className='search-list' ref={tooltipRef}>
         <div className="search-results">
           {searchResults.users.length > 0 && (
             <div className="result-section">
