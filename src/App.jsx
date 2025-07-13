@@ -33,13 +33,18 @@ import ScrollToTop from "./components/ScrollToTop";
 import AddAccount_modal from "./components/modal/AddAccount_modal";
 import TestingLogin3 from "./page/Login/TestingLogin3";
 // import TestingLogin from "./page/Login/TestingLogin";
+import AboutPage from "./components/LandingPage/AboutPage";
+
 
 function App() {
   const { initializeAuth, authenticated } = useAppStore();
   const [sidebar, setSideBar] = useState(true);
   const [profileNavVisible, setProfileNavVisible] = useState(false);
+
   const [globalCloseRender, setGlobalCloseRender] = useState(false)
   const [toggle, setToggle] = useState(false);
+  const [reloadSwitch, setRelaodSwitch] = useState(false)
+
 
 
   useEffect(() => {
@@ -82,6 +87,7 @@ function App() {
             <Route path="/draft" element={<DraftStudio />} />
             <Route path="/editvideo/:d" element={<EditVideo />} />
             <Route path="/communities" element={<CommunitiesRender />} />
+            <Route path="/about" element={<AboutPage />} />
             <Route
               path="/community/:communityName"
               element={<CommunityPage />}

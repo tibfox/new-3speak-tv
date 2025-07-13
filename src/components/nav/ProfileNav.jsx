@@ -25,8 +25,12 @@ function ProfileNav({ isVisible, onclose, toggleAddAccount }) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [votingPower, setVotingPower] = useState(0);
   const [rc, setRc] = useState(0);
-  const [accountList, setAccountList] = useState();
 
+  const [accountList, setAccountList] = useState();     
+        useEffect(()=>{
+          const getAccountlist = JSON.parse(localStorage.getItem("accountsList")) || [];
+          setAccountList(getAccountlist)
+        },[isVisible])
 
   useEffect(() => {
     const getAccountlist = JSON.parse(localStorage.getItem("accountsList")) || [];
@@ -61,6 +65,7 @@ function ProfileNav({ isVisible, onclose, toggleAddAccount }) {
   }, []);
 
   return (
+
     <div className={`profilenav-container ${isVisible ? 'visible' : ''}`} onClick={onclose}>
       <div className="profile-wrap" onClick={(e) => e.stopPropagation()}>
 
@@ -91,6 +96,8 @@ function ProfileNav({ isVisible, onclose, toggleAddAccount }) {
             <TiThList className="icon" /> <span>Playlist</span>
           </Link>
           <Link to="/upload" className="wrap" onClick={onclose}>
+
+
             <MdCloudUpload className="icon" /> <span>Upload Video</span>
           </Link>
           <div className="wrap" onClick={() => { handlewallletNavigation(); onclose() }}>
@@ -100,10 +107,12 @@ function ProfileNav({ isVisible, onclose, toggleAddAccount }) {
             <FaUserGroup className="icon" /> <span>Switch User</span>
             {showDropdown && accountList.length > 0 && (<div className="dropdown-menu">
               <span className='close-btn' onClick={() => setShowDropdown(!showDropdown)}>x</span>
+
               {accountList.map((list, index) => (
                 <div key={index} className="list" onClick={(e) => { e.stopPropagation(); handleSwitchAccount(list.username); setShowDropdown(!showDropdown) }}> <img src={`https://images.hive.blog/u/${list.username}/avatar`} alt="" /> <span>{list.username}</span></div>
               ))}
               <button className='add-account' onClick={() => { onclose(); toggleAddAccount(); }}>Add Account</button>
+
             </div>)}
           </div>
           <Link className="wrap">
@@ -112,17 +121,27 @@ function ProfileNav({ isVisible, onclose, toggleAddAccount }) {
           <Link to={"/login"} onClick={() => { LogOut(user); onclose() }} className="wrap">
             <IoPower className="icon" /> <span>Logout</span>
           </Link>
-        </div>
-        <div className="logo-wrap">
-          <img className="logo" src={logo} alt="" />
-        </div>
-        <div className="support-wrap">
-          <FaDiscord />
-          <SiTelegram />
-          <FaSquareXTwitter />
-        </div>
 
-        <span className='close-btn' onClick={onclose}>X</span>
+           </div>
+           <div className="logo-wrap">
+           <img className="logo" src={logo} alt="" />
+           </div>
+        <div className="support-wrap">
+          <a href="https://x.com/3speaktv?utm_source=3speak.tv" className="social-link" target="_blank" rel="noopener noreferrer">
+            <FaDiscord size={30} />
+          </a>
+          <a href="https://discord.com/invite/NSFS2VGj83" className="social-link" target="_blank" rel="noopener noreferrer">
+            <FaSquareXTwitter size={30} />
+          </a>
+          <a href="https://t.me/threespeak?utm_source=3speak.tv" className="social-link" target="_blank" rel="noopener noreferrer">
+            <SiTelegram size={30} />
+          </a>
+
+        </div>
+           
+           <span className='close-btn' onClick={onclose}>X</span>
+
+        
       </div>
     </div>
   )

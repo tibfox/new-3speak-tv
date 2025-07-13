@@ -26,7 +26,9 @@ const APP_META = {
 
 function KeyChainLogin() {
   const client = axios.create({});
-  const { initializeAuth, switchAccount, clearAccount } = useAppStore();
+
+  const { initializeAuth, setActiveUser, switchAccount, clearAccount, LogOut, user } = useAppStore();
+
   const studioEndPoint = "https://studio.3speak.tv";
   const [username, setUsername] = useState('');
   const [accountList, setAccountList] = useState([]);
@@ -221,6 +223,19 @@ const handleSwitchAccount = (user) => {
     }
   };
 
+
+  const handleClearAccount = (e, userSelected)=>{
+    e.stopPropagation();
+    removeAccount(userSelected);
+    if(user === userSelected){
+      LogOut()
+    }
+
+
+  }
+
+  
+
   return (
     <>
     <div className="login-container">
@@ -261,7 +276,9 @@ const handleSwitchAccount = (user) => {
                   <div key={idx} className='wrap' onClick={() => handleSwitchAccount(list.username)}>
                     <img src={`https://images.hive.blog/u/${list.username}/avatar`} alt={list.username} />
                     <span>{list.username}</span>
+
                     {/* <LuLogOut size={12} onClick={(e) => { e.stopPropagation(); removeAccount(list.username); }} /> */}
+
                   </div>
                 ))}
               </div>

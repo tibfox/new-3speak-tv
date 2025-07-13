@@ -2,7 +2,11 @@ import axios from "axios";
 import { api } from "../../utils/api";
 import { API_URL_FROM_WEST } from "../../utils/config";
 import {persist} from "zustand/middleware"
+
 import aioha from "../../hive-api/aioha";
+
+import { toast } from "react-toastify";
+
 
 const LOCAL_STORAGE_USER_ID_KEY = "user_id";
 
@@ -53,6 +57,7 @@ export const createAuthUserSlice = (set) => ({
       localStorage.setItem("access_token", account.access_token);
       localStorage.setItem("user_id", account.username);
     }
+    toast.success(`Switched to ${username} successfully!`)
   },
 
   
