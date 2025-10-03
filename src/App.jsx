@@ -39,6 +39,7 @@ import { Toaster } from 'sonner'
 import Thumbnail from "./components/studio2/Thumbnail";
 import Details from "./components/studio2/Details";
 import Preview from "./components/studio2/Preview";
+import Test from "./page/Test";
 
 function App() {
   const { initializeAuth, authenticated } = useAppStore();
@@ -106,7 +107,7 @@ function App() {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/p/:user" element={<UserProfilePage />} />
             <Route path="/wallet/:user" element={<Wallet />} />
-            <Route path="/test" element={<Testing />} />
+            <Route path="/test" element={<Test />} />
           </Routes>
         </div>
         <ProfileNav isVisible={profileNavVisible} onclose={toggleProfileNav} toggleAddAccount={toggleAddAccount} />

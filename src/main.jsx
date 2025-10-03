@@ -13,22 +13,26 @@ import 'react-toastify/dist/ReactToastify.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { Buffer } from 'buffer';
 import { AppProviders } from './context/Providers';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 window.Buffer = Buffer;
 
 // import { Buffer } from 'buffer';
 // window.Buffer = Buffer;
-
+const queryClient = new QueryClient();
 createRoot(document.getElementById('root')).render(
 
   <StrictMode>
     <BrowserRouter>
     <AppProviders>
+      <QueryClientProvider client={queryClient}>
+
       <ApolloProvider client={client}>
         <Provider store={store}> {/* Wrap the app with the Redux Provider */}
           <App />
           <ToastContainer className="custom-toast-body"/>
         </Provider>
       </ApolloProvider>
+      </QueryClientProvider>
       </AppProviders>
     </BrowserRouter>
   </StrictMode>

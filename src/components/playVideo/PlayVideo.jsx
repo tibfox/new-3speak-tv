@@ -47,6 +47,7 @@ const PlayVideo = ({ videoDetails, author, permlink }) => {
   const [accountData, setAccountData] = useState(null);
   const [voteValue, setVoteValue] = useState(0.0);
   const [weight, setWeight] = useState(100);
+  const [view, setView] = useState(0)
   const navigate = useNavigate();
 
   dayjs.extend(relativeTime);
@@ -71,6 +72,9 @@ const getTooltipVoters = async () => {
   try {
     const data = await getUersContent(author, permlink);
     if (!data) return [];
+    console.log(data)
+
+    setView(data.active_votes.length)
 
     if (data.active_votes) {
       setOptimisticVoteCount(data.active_votes.length);
@@ -333,8 +337,8 @@ const handleProfileNavigate = (user) => {
       <div className="top-container">
 {videoUrlSelected ? (
     <JWPlayer
-      library={`https://cdn.jwplayer.com/libraries/${import.meta.env.VITE_JWPLAYER_LICENSE_ID}.js `} // Updated library
-      licenseKey={import.meta.env.VITE_JWPLAYER_LICENSE_KEY} // Verify key validity
+      // library={`https://cdn.jwplayer.com/libraries/${import.meta.env.VITE_JWPLAYER_LICENSE_ID}.js `} // Updated library
+      // licenseKey={import.meta.env.VITE_JWPLAYER_LICENSE_KEY} // Verify key validity
       playlist={[
         {
           file: videoUrlSelected,
@@ -371,7 +375,7 @@ const handleProfileNavigate = (user) => {
           <div className="wrap-left">
             <div className="wrap">
               <FaEye />
-              <span>23</span>
+              <span>{view}</span>
             </div>
             <div className="wrap">
               <LuTimer />
@@ -390,10 +394,10 @@ const handleProfileNavigate = (user) => {
             </span>
             
 
-            <span className="wrap">
+            {/* <span className="wrap">
               <BiDislike className="icon" />
               <span>0</span>
-            </span>
+            </span> */}
             <span className="wrap">
               <GiTwoCoins className="icon" />
               <span>${videoDetails?.stats.total_hive_reward.toFixed(2)}</span>

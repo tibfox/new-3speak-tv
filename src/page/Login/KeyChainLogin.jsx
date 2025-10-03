@@ -231,8 +231,6 @@ const handleSwitchAccount = (user) => {
     if(user === userSelected){
       LogOut()
     }
-
-
   }
 
   
