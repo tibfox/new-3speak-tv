@@ -9,6 +9,9 @@ import "./UserProfilePage.scss"
 import BarLoader from '../Loader/BarLoader';
 import { Quantum } from 'ldrs/react'
 import 'ldrs/react/Quantum.css'
+import { useInfiniteQuery } from '@tanstack/react-query';
+import axios from 'axios';
+import Card3 from '../Cards/Card3';
 
 
 
@@ -22,11 +25,58 @@ function UserProfilePage() {
       useEffect(()=>{
         getFollowersCount(user)
       },[])
-      const { loading, error, data } = useQuery(GET_SOCIAL_FEED_BY_CREATOR, {
-        variables: { id: user },
-      });
-      const videos = data?.socialFeed?.items || [];
-      console.log(videos);
+
+
+       const fetchVideos = async ({ pageParam = 1 }) => {
+        const res = await axios.get(
+          `https://3speak.tv/apiv2/feeds/@${user}?page=${pageParam}`
+        );
+        return res.data;
+      };
+      
+      const {
+          data,
+          fetchNextPage,
+          hasNextPage,
+          isFetchingNextPage,
+          isLoading,
+          isError,
+          refetch,     
+        } = useInfiniteQuery({
+          queryKey: ["videos"],
+          queryFn: fetchVideos,
+          getNextPageParam: (lastPage, allPages) => {
+            // If last page has data, increment page
+            if (lastPage.length > 0) return allPages.length + 1;
+            return undefined; // stop fetching
+          },
+        });
+      
+        useEffect(() => {
+              const handleScroll = () => {
+                if (
+                  window.innerHeight + window.scrollY >=
+                    document.body.offsetHeight - 200 &&
+                  !isFetchingNextPage &&
+                  hasNextPage
+                ) {
+                  fetchNextPage();
+                }
+              };
+          
+              window.addEventListener("scroll", handleScroll);
+              return () => window.removeEventListener("scroll", handleScroll);
+            }, [isFetchingNextPage, hasNextPage, fetchNextPage]);
+          
+            // Flatten all pages into a single array
+            const videos = data?.pages.flat() || [];
+
+
+      // const { loading, error, data } = useQuery(GET_SOCIAL_FEED_BY_CREATOR, {
+      //   variables: { id: user },
+      // });
+      // const videos = data?.socialFeed?.items || [];
+      // console.log(videos);
     
     
       const getFollowersCount = async (user)=>{
@@ -61,8 +111,7 @@ function UserProfilePage() {
         <span className="followers"> Followers{" "} {follower?.follower_count !== undefined ? ( follower.follower_count ) : (<Quantum size="15" speed="1.75" color="red" />  )}</span>
       </div>
       <div className="container-video">
-        {loading ? (<BarLoader/>) : videos?.length === 0 ? ( <div className='empty-wrap'>  <img src={icon} alt="" /><span>No Video Data Available</span></div>) : (<Cards videos={videos} loading={loading} error={error}
-            className="custom-video-feed" />
+        {isLoading ? (<BarLoader/>) : videos?.length === 0 ? ( <div className='empty-wrap'>  <img src={icon} alt="" /><span>No Video Data Available</span></div>) : (<Card3 videos={videos} loading={isFetchingNextPage} />
         ) }
       </div>
     </div>

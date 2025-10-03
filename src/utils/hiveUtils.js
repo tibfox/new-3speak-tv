@@ -1,5 +1,7 @@
 import { Client, SMTAsset } from '@hiveio/dhive';
 
+
+
 // Connect to a Hive node
 const client = new Client([
     "https://api.hive.blog",
@@ -47,6 +49,54 @@ export async function getUersContent(author, permlink) {
       return null;
     }
   }
+
+//   export async function getContentData(author, permlink) {
+//   try {
+//     const post = await client.database.call("get_content", [author, permlink]);
+
+//     if (post) {
+//       let data = {
+//         activeVoters: post.active_votes,
+//         payout: post.pending_payout_value
+//       };
+//       return data;
+//     }
+
+//     console.log("Post not found");
+//     return null;
+//   } catch (error) {
+//     console.error("Error fetching post:", error);
+//     return null;
+//   }
+// }
+
+export async function getContentData(active_user, author, permlink, setHasVoted1) {
+  const post = await client.database.call("get_content", [author, permlink]);
+
+  if (!post) return null;
+
+  let payout =
+    post.last_payout <= "1970-01-01T00:00:00"
+      ? parseFloat(post.pending_payout_value)
+      : parseFloat(post.total_payout_value) +
+        parseFloat(post.curator_payout_value);
+
+
+      const isVoted = post.active_votes?.some(
+    (vote) => vote.voter === active_user
+  ) || false;
+
+  // if (isVoted) {
+  //   setHasVoted1(isVoted);
+  // }
+
+  return {
+    payout: payout.toFixed(2),
+    voters: post.active_votes?.length || 0,
+    isVoted
+  };
+}
+
 
   export const vestsToRshares = (vests, votingPower, votePerc) => {
     const vestingShares = vests * 1e6;

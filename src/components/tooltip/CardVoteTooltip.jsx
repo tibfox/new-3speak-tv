@@ -12,7 +12,7 @@ import {  toast } from 'sonner'
 
 
 
-const CardVoteTooltip = ({ author, permlink, showTooltip, setShowTooltip, setVotedPosts, voteValue, setVoteValue }) => {
+const CardVoteTooltip = ({ author, permlink, showTooltip, setShowTooltip, voteValue, setVoteValue, setVoteStatus }) => {
   const { user, authenticated} = useAppStore();
   // const [votingPower, setVotingPower] = useState(100);
   const [weight, setWeight] = useState(100);
@@ -109,8 +109,14 @@ const getVotingDefaultValue = async (account, percent)=>{
             console.log('Vote response:', response.data);
       if (response.data.success) {
         toast.success('Vote successful');
-        setVotedPosts((prev) => [...prev, `${author}/${permlink}`]);
+        const postKey = `${author}/${permlink}`;
+        // Optimistically mark as voted
+        setVoteStatus((prev) => ({
+          ...prev,
+          [postKey]: true,
+        }));
       }
+
       setIsLoading(false);
          setShowTooltip(false);
 

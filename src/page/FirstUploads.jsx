@@ -1,41 +1,68 @@
-// import React, { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import "./FirstUploads.scss"
-// import { GiEternalLove } from 'react-icons/gi'
-// import { IoChevronUpCircleOutline } from 'react-icons/io5'
-// import { Link } from 'react-router-dom'
-
-// import thumb1 from "../assets/image/thumb01.jfif"
-// import thumb2 from "../assets/image/thumb02.jfif"
-// import thumb3 from "../assets/image/thumb03.jfif"
-// import thumb4 from "../assets/image/thumb04.jfif"
-// import thumb5 from "../assets/image/thumb05.jfif"
-// import thumb6 from "../assets/image/thumb06.jfif"
-// import thumb7 from "../assets/image/thumb07.jfif"
-// import thumb8 from "../assets/image/thumb08.jfif"
-// import thumb9 from "../assets/image/thumb09.jfif"
-// import thumb10 from "../assets/image/thumb10.jfif"
-// import user_img from "../assets/image/user-img.avif"
-// import { useQuery } from '@tanstack/react-query'
 import { useQuery } from '@apollo/client';
 import { FIRST_UPLOAD_FEED } from '../graphql/queries'
 import Cards from "../components/Cards/Cards"
 import CardSkeleton from "../components/Cards/CardSkeleton";
-// import axios from 'axios'
+import axios from 'axios'
+import Card3 from '../components/Cards/Card3';
+import { useInfiniteQuery } from '@tanstack/react-query';
+
+const fetchVideos = async ({ pageParam = 1 }) => {
+  const res = await axios.get(
+    `https://3speak.tv/apiv2/feeds/firstUploads?page=${pageParam}`
+  );
+  return res.data;
+};
 const FirstUploads = () => {
 
-  const { data, loading, error } = useQuery(FIRST_UPLOAD_FEED);
-  const videos = data?.trendingFeed?.items || [];
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,     
+  } = useInfiniteQuery({
+    queryKey: ["videos"],
+    queryFn: fetchVideos,
+    getNextPageParam: (lastPage, allPages) => {
+      // If last page has data, increment page
+      if (lastPage.length > 0) return allPages.length + 1;
+      return undefined; // stop fetching
+    },
+  });
 
-  // const getFeed = useQuery(FIRST_UPLOAD_FEED);
+  useEffect(() => {
+      const handleScroll = () => {
+        if (
+          window.innerHeight + window.scrollY >=
+            document.body.offsetHeight - 200 &&
+          !isFetchingNextPage &&
+          hasNextPage
+        ) {
+          fetchNextPage();
+        }
+      };
+  
+      window.addEventListener("scroll", handleScroll);
+      return () => window.removeEventListener("scroll", handleScroll);
+    }, [isFetchingNextPage, hasNextPage, fetchNextPage]);
+  
+    // Flatten all pages into a single array
+    const videos = data?.pages.flat() || [];
+
+ 
 
   console.log(videos)
   return (
     <div className='firstupload-container'>
         <div className='headers'>FIRST TIME UPLOADS</div>
-        {loading ? <CardSkeleton /> :<Cards videos={videos} 
-      loading={loading} 
-      error={error} 
-      className="custom-video-feed" />}
+        {isLoading ? <CardSkeleton /> :  <Card3 videos={videos} loading={isFetchingNextPage} />}
+    {isError && <p>Error fetching videos</p>}
+      {isFetchingNextPage && (
+        <p style={{ textAlign: "center" }}>Loading more...</p>
+      )}
 
     </div>
   )

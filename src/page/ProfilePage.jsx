@@ -15,6 +15,12 @@ import "ldrs/react/Leapfrog.css";
 import {  toast } from 'sonner'
 import { FaVideo } from 'react-icons/fa';
 import Follower from "../components/Userprofilepage/Follower";
+import axios from "axios";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import Card3 from "../components/Cards/Card3";
+
+
+
 
 function ProfilePage() {
   const { user, isProcessing, title : processTitle,processUser, updateProcessing, authenticated } = useAppStore();
@@ -34,10 +40,54 @@ function ProfilePage() {
     };
   }, []);
 
-  const { loading, error, data, refetch } = useQuery(GET_SOCIAL_FEED_BY_CREATOR, {
-    variables: { id: user },
+  const fetchVideos = async ({ pageParam = 1 }) => {
+  const res = await axios.get(
+    `https://3speak.tv/apiv2/feeds/@${user}?page=${pageParam}`
+  );
+  return res.data;
+};
+
+const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,
+    refetch,     
+  } = useInfiniteQuery({
+    queryKey: ["videos"],
+    queryFn: fetchVideos,
+    getNextPageParam: (lastPage, allPages) => {
+      // If last page has data, increment page
+      if (lastPage.length > 0) return allPages.length + 1;
+      return undefined; // stop fetching
+    },
   });
-  const videos = data?.socialFeed?.items || [];
+
+  useEffect(() => {
+        const handleScroll = () => {
+          if (
+            window.innerHeight + window.scrollY >=
+              document.body.offsetHeight - 200 &&
+            !isFetchingNextPage &&
+            hasNextPage
+          ) {
+            fetchNextPage();
+          }
+        };
+    
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+      }, [isFetchingNextPage, hasNextPage, fetchNextPage]);
+    
+      // Flatten all pages into a single array
+      const videos = data?.pages.flat() || [];
+
+  // const { loading, error, data, refetch } = useQuery(GET_SOCIAL_FEED_BY_CREATOR, {
+  //   variables: { id: user },
+  // });
+  // const videos = data?.socialFeed?.items || [];
 
   useEffect(() => {
     if (videos.length > 0 && isProcessing) {
@@ -150,7 +200,7 @@ function ProfilePage() {
       </div>
 
       <div className="container-video">
-        {loading ? (
+        {isLoading ? (
           <BarLoader />
         ) : videos.length === 0 && !processing ? (
           <div className="empty-wrap">
@@ -178,12 +228,8 @@ function ProfilePage() {
                 </div>
               </div>
             )}
-           {show === "video" ? <Cards
-              videos={videos}
-              loading={loading}
-              error={error}
-              className="custom-video-feed"
-            /> :
+           {show === "video" ? 
+           <Card3 videos={videos} loading={isFetchingNextPage} /> :
             <Follower count={follower} />}
           </>
         )}

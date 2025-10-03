@@ -1,31 +1,69 @@
-// import React from 'react'
+import axios from "axios";
+import React, { useEffect } from "react";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import Card3 from "../components/Cards/Card3";
+import CardSkeleton from "../components/Cards/CardSkeleton";
 
-// function Test() {
-//   return (
-//     <div className='card-container'>
-//         <div className="card"></div>
-//         <div className="card"></div>
-//         <div className="card"></div>
-//         <div className="card"></div>
-//     </div>
-//   )
-// }
+const fetchVideos = async ({ pageParam = 1 }) => {
+  const res = await axios.get(
+    `https://3speak.tv/apiv2/feeds/@kesolink?page=${pageParam}`
+  );
+  return res.data;
+};
 
-// export default Test
+function Test() {
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,     
+  } = useInfiniteQuery({
+    queryKey: ["videos"],
+    queryFn: fetchVideos,
+    getNextPageParam: (lastPage, allPages) => {
+      // If last page has data, increment page
+      if (lastPage.length > 0) return allPages.length + 1;
+      return undefined; // stop fetching
+    },
+  });
 
-// .card-container{
-//     display: grid;
-//     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-//     grid-column-gap: 16px;
-//     grid-row-gap: 30px;
-//     margin-top: 15px;
-// }
+  // Infinite scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      if (
+        window.innerHeight + window.scrollY >=
+          document.body.offsetHeight - 200 &&
+        !isFetchingNextPage &&
+        hasNextPage
+      ) {
+        fetchNextPage();
+      }
+    };
 
-// .card{
-//     background-color: #fff;
-//     border-radius: 12px;
-//     box-shadow: 1px 4px 9px 0px rgba(0, 0, 0, 0.231372549);
-//     display: flex;
-//     flex-direction: column;
-//     justify-content: space-between;
-// }
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [isFetchingNextPage, hasNextPage, fetchNextPage]);
+
+  // Flatten all pages into a single array
+  const videos = data?.pages.flat() || [];
+
+  return (
+    <div>
+      {isLoading ? <CardSkeleton /> :  <Card3 videos={videos} loading={isFetchingNextPage} />}
+      {isError && <p>Error fetching videos</p>}
+
+      
+
+      {isFetchingNextPage && (
+        <p style={{ textAlign: "center" }}>Loading more...</p>
+      )}
+      {/* {!hasNextPage && (
+        <p style={{ textAlign: "center" }}>No more videos</p>
+      )} */}
+    </div>
+  );
+}
+
+export default Test;
