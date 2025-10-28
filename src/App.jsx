@@ -40,9 +40,9 @@ import Thumbnail from "./components/studio2/Thumbnail";
 import Details from "./components/studio2/Details";
 import Preview from "./components/studio2/Preview";
 import Test from "./page/Test";
-import Email from "./page/Login/Email"
-import AuthCallback from "./page/Login/AuthCallback";
-import {AUTH_JWT_SECRET} from "../src/utils/config";
+// import Email from "./page/Login/Email"
+// import AuthCallback from "./page/Login/AuthCallback";
+// import {AUTH_JWT_SECRET} from "../src/utils/config";
 
 
 import { jwtDecode } from "jwt-decode";
