@@ -13,24 +13,54 @@ import { useLegacyUpload } from "../../context/LegacyUploadContext";
 
 function Thumbnail() {
  const { generatedThumbnail,thumbnailFile, setThumbnailFile, setStep,  setUploadThumbnailProgress,videoFile, step, selectedThumbnail, setSelectedThumbnail, selectedIndex, setSelectedIndex } = useLegacyUpload()
-  const tusEndPoint = "https://uploads.3speak.tv/files/";
   // const [selectedThumbnail, setSelectedThumbnail] = useState("");
   const [customfile, setCustomFile] = useState([]);
   const [customFiles, setCustomFiles] = useState([]); 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+
   const thumbnailInputRef = useRef(null);
   // const [selectedIndex, setSelectedIndex] = useState(null);
   const navigate = useNavigate()
+
+  useEffect(()=>{
+      setStep(2)
+    }, [])
+
+  useEffect(() => {
+    // Auto-select the first thumbnail by default
+  if (generatedThumbnail.length > 0 && selectedIndex === null) {
+    const first = generatedThumbnail[0];
+
+    setSelectedIndex(0);
+    setSelectedThumbnail(first);
+
+    // Convert generated base64 → Blob
+    const base64 = first;
+    const mime = base64.split(";")[0].split(":")[1];
+    const byteString = atob(base64.split(",")[1]);
+
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    for (let i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+    }
+
+    const blob = new Blob([ab], { type: mime });
+
+    setThumbnailFile(blob);
+  }
+}, [generatedThumbnail]);
 
         if (!videoFile ) {
     return <Navigate to="/studio" replace />;
   }
 
 
-    useEffect(()=>{
-      setStep(2)
-    }, [])
+    
+
+    
+
+
 
 
 
