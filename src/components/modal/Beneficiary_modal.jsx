@@ -163,6 +163,7 @@ function Beneficiary_modal({ isOpen, close, setBeneficiaries, setBeneficiaryList
               <input
                 type="number"
                 value={percent}
+                min="1"
                 onChange={(e) => setPercent(parseFloat(e.target.value))}
               />
               <span>%</span>
@@ -185,8 +186,8 @@ function Beneficiary_modal({ isOpen, close, setBeneficiaries, setBeneficiaryList
           </div>
 
           <div className="last-btn-wrap">
-            <button onClick={close}>Cancel</button>
-            <button onClick={handleSave}>Save</button>
+            {/* <button onClick={close}>Cancel</button> */}
+            <button onClick={handleSave}>Continue</button>
           </div>
 
           <div className="default-bene-wrap">
