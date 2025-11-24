@@ -182,3 +182,37 @@
 }
 
 
+.input-tooltip-wrap {
+  position: relative;
+  height: 100%;
+
+  .tooltip {
+    position: absolute;
+    left: 0;
+    background: #ff4d4f;
+    color: white;
+    padding: 5px 8px;
+    border-radius: 5px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 20;
+    animation: fadeIn 0.2s ease-in-out;
+
+    &::after {
+      content: "";
+      position: absolute;
+      bottom: -5px;
+      left: 10px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: #ff4d4f transparent transparent transparent;
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+

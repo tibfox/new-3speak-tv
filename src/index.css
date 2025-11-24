@@ -44,6 +44,15 @@ img{
   font-size: 15px; /* Adjust size as needed */
 }
 
+/* This resolve zooming in Safari/iPhone-only. */
+@supports (-webkit-touch-callout: none) {
+  .ql-editor {
+    font-size: 16px !important;
+  }
+}
+
+
+
 
 
 
