@@ -55,6 +55,7 @@ function Beneficiary_modal({ isOpen, close, setBeneficiaries, setBeneficiaryList
         setError(`Reward percentage exceeds remaining allocation of ${remaingPercent}%.`);
         return;
       }
+      if (percent < 1) return
 
     setError('');
 
@@ -160,15 +161,37 @@ function Beneficiary_modal({ isOpen, close, setBeneficiaries, setBeneficiaryList
             </div>
             <div className="num-wrap">
               <label>Reward</label>
-              <input
-                type="number"
-                value={percent}
-                min="1"
-                onChange={(e) => setPercent(parseFloat(e.target.value))}
-              />
+
+              <div className="input-tooltip-wrap">
+                <input
+                  type="number"
+                  value={percent}
+                  min="1"
+                  step="1"
+                  onChange={(e) => {
+                    const value = parseFloat(e.target.value);
+
+                    if (value < 1) {
+                      setPercent(value);
+                      setError("Reward percent must be at least 1%");
+                    } else {
+                      setError("");
+                      setPercent(value);
+                    }
+                  }}
+                />
+
+                {percent > 0 && percent < 1 && (
+                  <div className="tooltip">
+                    Minimum reward is <strong>1%</strong>
+                  </div>
+                )}
+              </div>
+
               <span>%</span>
-              <button onClick={handleBeneficairy} className='green'>+</button>
+              <button onClick={handleBeneficairy} className="green">+</button>
             </div>
+
           </div>
 
           {/* Render the beneficiary list */}
