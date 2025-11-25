@@ -78,24 +78,24 @@ function Preview() {
       // -----------------------------------
 
         // Force it to be an array
-    // let finalBeneficiaries = [];
+    let finalBeneficiaries = [];
     
-    // if (Array.isArray(beneficiaries)) {
-    //   finalBeneficiaries = beneficiaries;
-    // } else if (typeof beneficiaries === 'string') {
-    //   try {
-    //     finalBeneficiaries = JSON.parse(beneficiaries);
-    //     console.log("Parsed from string:", finalBeneficiaries);
-    //   } catch (e) {
-    //     console.error("Failed to parse beneficiaries:", e);
-    //     finalBeneficiaries = [];
-    //   }
-    // }
+    if (Array.isArray(beneficiaries)) {
+      finalBeneficiaries = beneficiaries;
+    } else if (typeof beneficiaries === 'string') {
+      try {
+        finalBeneficiaries = JSON.parse(beneficiaries);
+        console.log("Parsed from string:", finalBeneficiaries);
+      } catch (e) {
+        console.error("Failed to parse beneficiaries:", e);
+        finalBeneficiaries = [];
+      }
+    }
     
-    // // Ensure it's definitely an array
-    // if (!Array.isArray(finalBeneficiaries)) {
-    //   finalBeneficiaries = [];
-    // }
+    // Ensure it's definitely an array
+    if (!Array.isArray(finalBeneficiaries)) {
+      finalBeneficiaries = [];
+    }
 
 
 
