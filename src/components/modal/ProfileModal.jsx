@@ -25,6 +25,11 @@ function ProfileModal({ username = "kesolink", onClose }) {
     loadProfile();
   }, [username, activeUser]);
 
+  useEffect(() => {
+  document.body.style.overflow = "hidden";
+  return () => { document.body.style.overflow = "auto"; };
+}, []);
+
  
   // check follow status using real API data
   useEffect(() => {
