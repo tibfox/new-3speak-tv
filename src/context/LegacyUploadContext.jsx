@@ -129,93 +129,94 @@ export function LegacyUploadProvider({ children }) {
     uploadStatusRef.current = uploadStatus;
   }, [uploadStatus]);
 
-  //   const addMessage = (msg, type = "info") => {
-  //   setStatusMessages((prev) => [
-  //     ...prev,
-  //     {
-  //       time: new Date().toLocaleTimeString(),
-  //       message: msg,
-  //       type,
-  //     },
-  //   ]);
-  // };
+    const addMessage = (msg, type = "info") => {
+    setStatusMessages((prev) => [
+      ...prev,
+      {
+        time: new Date().toLocaleTimeString(),
+        message: msg,
+        type,
+      },
+    ]);
+  };
 
 
 
-//   const startEncodingPolling = (vid) => {
-//   setStatusText("Processing video…");
-//   addMessage("Waiting for encoding to start…");
+  const startEncodingPolling = (vid) => {
+  setStatusText("Processing video…");
+  addMessage("Waiting for encoding to start…");
 
-//   let lastEncodingProgress = 0; // Track last progress to avoid duplicate messages
-//   let hasStartedEncoding = false; // Track if encoding has started
+  let lastEncodingProgress = 0; // Track last progress to avoid duplicate messages
+  let hasStartedEncoding = false; // Track if encoding has started
 
-//   encodingIntervalRef.current = setInterval(async () => {
-//     try {
-//       const statusResp = await axios.get(
-//         `${UPLOAD_URL}/api/upload/video/${vid}/status`,
-//         {
-//           headers: { Authorization: `Bearer ${UPLOAD_TOKEN}` },
-//         }
-//       );
+  encodingIntervalRef.current = setInterval(async () => {
+    try {
+      const statusResp = await axios.get(
+        `${UPLOAD_URL}/api/upload/video/${vid}/status`,
+        {
+          headers: { Authorization: `Bearer ${UPLOAD_TOKEN}` },
+        }
+      );
 
-//       const data = statusResp.data.data.video;
+      const data = statusResp.data.data.video;
 
-//       console.log(data)
+      console.log(data)
 
-//       // ENCODING
-//       if (data.status === "encoding") {
-//         const encodingPct = data.encodingProgress || 0;
+      // ENCODING
+      if (data.status === "encoding") {
+        const encodingPct = data.encodingProgress || 0;
         
-//         // Show message when encoding starts
-//         if (!hasStartedEncoding) {
-//           addMessage("🎬 Video encoding has started!", "info");
-//           hasStartedEncoding = true;
-//         }
+        // Show message when encoding starts
+        if (!hasStartedEncoding) {
+          addMessage("🎬 Video encoding has started!", "info");
+          hasStartedEncoding = true;
+        }
         
-//         // Update progress only if it changed by at least 5% (to avoid spam)
-//         if (encodingPct - lastEncodingProgress >= 5) {
-//           addMessage(`⚙️ Encoding progress: ${encodingPct}%`, "info");
-//           lastEncodingProgress = encodingPct;
-//         }
+        // Update progress only if it changed by at least 5% (to avoid spam)
+        if (encodingPct - lastEncodingProgress >= 5) {
+          addMessage(`⚙️ Encoding progress: ${encodingPct}%`, "info");
+          lastEncodingProgress = encodingPct;
+        }
         
-//         setStatusText(`Encoding video… (${encodingPct}%)`);
-//       }
+        setStatusText(`Encoding video… (${encodingPct}%)`);
+      }
 
-//       // PUBLISHING
-//       if (data.status === "publishing") {
-//         if (hasStartedEncoding) {
-//           addMessage("✅ Encoding completed (100%)", "success");
-//           hasStartedEncoding = false; // Reset for next stage
-//         }
-//         setStatusText("Publishing to blockchain…");
-//         addMessage("📡 Publishing video to blockchain…", "info");
+      // PUBLISHING
+      if (data.status === "publishing") {
+        if (hasStartedEncoding) {
+          addMessage("✅ Encoding completed (100%)", "success");
+          hasStartedEncoding = false; // Reset for next stage
+        }
+        setStatusText("Publishing to blockchain…");
+        addMessage("📡 Publishing video to blockchain…", "info");
 
-//       }
+      }
 
-//       // PUBLISHED
-//       if (data.status === "published") {
-//         clearInterval(encodingIntervalRef.current);
-//         setStatusText("Completed");
-//         setCompleted(true);
-//         setUploading(false);
-//         setIsSubmitting(false); // NEW: Mark as no longer submitting
-//         addMessage("🎉 Video successfully published!", "success");
-//       }
+      // PUBLISHED
+      if (data.status === "published") {
+        clearInterval(encodingIntervalRef.current);
+        setStatusText("Completed");
+        resetUploadState();
+        // setCompleted(true);
+        // setUploading(false);
+        setIsSubmitting(false); // NEW: Mark as no longer submitting
+        addMessage("🎉 Video successfully published!", "success");
+      }
 
-//       // FAILED
-//       if (data.status === "failed") {
-//         clearInterval(encodingIntervalRef.current);
-//         setUploading(false);
-//         setIsSubmitting(false); // NEW: Mark as no longer submitting
-//         addMessage("❌ Video processing failed", "error");
-//         toast.error("Video processing failed");
-//       }
-//     } catch (err) {
-//       addMessage("⚠️ Polling error: " + err.message, "error");
-//       console.error("Polling error:", err);
-//     }
-//   }, 5000); // Poll every 5 seconds
-// };
+      // FAILED
+      if (data.status === "failed") {
+        clearInterval(encodingIntervalRef.current);
+        setUploading(false);
+        setIsSubmitting(false); // NEW: Mark as no longer submitting
+        addMessage("❌ Video processing failed", "error");
+        toast.error("Video processing failed");
+      }
+    } catch (err) {
+      addMessage("⚠️ Polling error: " + err.message, "error");
+      console.error("Polling error:", err);
+    }
+  }, 5000); // Poll every 5 seconds
+};
 
   // ============================================
   // UPLOAD VIDEO TO 3SPEAK (MOVED FROM PREVIEW)
@@ -308,8 +309,8 @@ export function LegacyUploadProvider({ children }) {
 
 
 
-
-      resetUploadState();
+      startEncodingPolling (vid)
+      // resetUploadState();
 
 
 

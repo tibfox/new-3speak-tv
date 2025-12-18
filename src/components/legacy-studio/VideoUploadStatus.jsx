@@ -19,34 +19,47 @@ const VideoUploadStatus = ({  uploadVideoTo3Speak, setUploading}) => {
   ];
 
   // Memoize cleaned messages for performance
-  const cleanedMessages = useMemo(() => {
-    // shallow copyr
-    let filtered = [...statusMessages];
+const cleanedMessages = useMemo(() => {
+  let filtered = [...statusMessages];
 
-    // Remove loading messages if their "done" counterpart exists
-    successPairs.forEach(pair => {
-      const hasDone = filtered.some(m => m.message === pair.done);
-      if (hasDone) {
-        filtered = filtered.filter(m => m.message !== pair.loading);
-      }
-    });
-
-    // Keep only the LATEST encoding progress message (remove older ones)
-    const encodingMessages = filtered.filter(m => 
-      m.message.includes("⚙️ Encoding in progress:")
-    );
-    
-    if (encodingMessages.length > 1) {
-      // Keep only the last encoding message
-      const latestEncodingMsg = encodingMessages[encodingMessages.length - 1];
-      filtered = filtered.filter(m => 
-        !m.message.includes("⚙️ Encoding in progress:") || 
-        m === latestEncodingMsg
-      );
+  /* ---------------- SUCCESS PAIRS ---------------- */
+  successPairs.forEach(pair => {
+    const hasDone = filtered.some(m => m.message === pair.done);
+    if (hasDone) {
+      filtered = filtered.filter(m => m.message !== pair.loading);
     }
+  });
 
-    return filtered;
-  }, [statusMessages]);
+  /* ---------------- DEDUPE STATUS LABELS ---------------- */
+  const seenStatus = new Map();
+
+  filtered.forEach((msg, index) => {
+    if (msg.message.startsWith("🎬")) {
+      // overwrite previous occurrence, keep latest index
+      seenStatus.set(msg.message, index);
+    }
+  });
+
+  filtered = filtered.filter((msg, index) => {
+    if (!msg.message.startsWith("🎬")) return true;
+    return seenStatus.get(msg.message) === index;
+  });
+
+  /* ---------------- KEEP ONLY LATEST ENCODING % ---------------- */
+  const encodingMsgs = filtered.filter(m =>
+    m.message.includes("Encoding:")
+  );
+
+  if (encodingMsgs.length > 1) {
+    const latest = encodingMsgs[encodingMsgs.length - 1];
+    filtered = filtered.filter(
+      m => !m.message.includes("Encoding:") || m === latest
+    );
+  }
+
+  return filtered;
+}, [statusMessages]);
+
 
   // latest status text based on cleaned messages
   const latestStatus = cleanedMessages.length

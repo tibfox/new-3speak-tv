@@ -150,11 +150,13 @@ $overlay: rgba(15, 23, 42, 0.6);
   justify-content: center;
   padding: 1rem;
   overflow-y: hidden;
+  
 
   .modal-card {
     width: 100%;
     max-width: 420px;
-    background: $bg;
+
+    background-image: linear-gradient(to right, rgb(55, 65, 81), rgb(31, 41, 55), rgb(17, 24, 39));
     border-radius: 8px;
     padding: 1.5rem;
     box-shadow:
@@ -171,28 +173,39 @@ $overlay: rgba(15, 23, 42, 0.6);
       font-size: 1.1rem;
       font-weight: 600;
       color: $text-dark;
+      text-align: center;
+      color: #fff;
     }
 
     p {
       font-size: 0.9rem;
       line-height: 1.5;
       color: $text-muted;
+      text-align: center;
+      color: #fff;
     }
 
     .actions {
       display: flex;
       gap: 0.75rem;
       margin-top: 0.5rem;
+      justify-content: center;
+      align-items: center;
 
       button {
-        flex: 1;
-        height: 44px;
+        // flex: 1;
+        // height: 44px;
+        padding: 8px 8px;
         border-radius: 10px;
         font-size: 0.9rem;
         font-weight: 500;
         cursor: pointer;
         border: 1px solid transparent;
         transition: all 0.2s ease;
+          @include mix.respond(phone) {
+            font-size: 12.35px;
+            // height: 34px;
+  }
 
         &:disabled {
           opacity: 0.6;
@@ -201,6 +214,7 @@ $overlay: rgba(15, 23, 42, 0.6);
       }
 
       .cancel {
+        padding: 8px 20px;
         background: #f8fafc;
         color: $text-dark;
         border-color: $border;
@@ -213,6 +227,7 @@ $overlay: rgba(15, 23, 42, 0.6);
       .primary {
         background: $primary;
         color: #fff;
+        
 
         &:hover {
           background: darken($primary, 6%);

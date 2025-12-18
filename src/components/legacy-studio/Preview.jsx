@@ -96,80 +96,139 @@ function Preview() {
  // --------------------------------------------------------
 // STATUS POLLING FUNCTION (every 5 seconds)
 // --------------------------------------------------------
+// const startEncodingPolling = (vid) => {
+//   setStatusText("Processing video…");
+//   addMessage("Waiting for encoding to start…");
+
+//   let lastEncodingProgress = 0; // Track last progress to avoid duplicate messages
+//   let hasStartedEncoding = false; // Track if encoding has started
+
+//   encodingIntervalRef.current = setInterval(async () => {
+//     try {
+//       const statusResp = await axios.get(
+//         `${UPLOAD_URL}/api/upload/video/${vid}/status`,
+//         {
+//           headers: { Authorization: `Bearer ${UPLOAD_TOKEN}` },
+//         }
+//       );
+
+//       const data = statusResp.data.data.video;
+
+//       console.log(data)
+
+//       // ENCODING
+//       if (data.status === "encoding") {
+//         const encodingPct = data.encodingProgress || 0;
+        
+//         // Show message when encoding starts
+//         if (!hasStartedEncoding) {
+//           addMessage("🎬 Video encoding has started!", "info");
+//           hasStartedEncoding = true;
+//         }
+        
+//         // Update progress only if it changed by at least 5% (to avoid spam)
+//         if (encodingPct - lastEncodingProgress >= 5) {
+//           addMessage(`⚙️ Encoding progress: ${encodingPct}%`, "info");
+//           lastEncodingProgress = encodingPct;
+//         }
+        
+//         setStatusText(`Encoding video… (${encodingPct}%)`);
+//       }
+
+//       // PUBLISHING
+//       if (data.status === "publishing") {
+//         if (hasStartedEncoding) {
+//           addMessage("✅ Encoding completed (100%)", "success");
+//           hasStartedEncoding = false; // Reset for next stage
+//         }
+//         setStatusText("Publishing to blockchain…");
+//         addMessage("📡 Publishing video to blockchain…", "info");
+
+//       }
+
+//       // PUBLISHED
+//       if (data.status === "published") {
+//         clearInterval(encodingIntervalRef.current);
+//         setStatusText("Completed");
+//         setCompleted(true);
+//         setUploading(false);
+//         setIsSubmitting(false); // NEW: Mark as no longer submitting
+//         addMessage("🎉 Video successfully published!", "success");
+//       }
+
+//       // FAILED
+//       if (data.status === "failed") {
+//         clearInterval(encodingIntervalRef.current);
+//         setUploading(false);
+//         setIsSubmitting(false); // NEW: Mark as no longer submitting
+//         addMessage("❌ Video processing failed", "error");
+//         toast.error("Video processing failed");
+//       }
+//     } catch (err) {
+//       addMessage("⚠️ Polling error: " + err.message, "error");
+//       console.error("Polling error:", err);
+//     }
+//   }, 5000); // Poll every 5 seconds
+// };
+
+
+
 const startEncodingPolling = (vid) => {
   setStatusText("Processing video…");
-  addMessage("Waiting for encoding to start…");
+  addMessage("Waiting for encoding to start…", "info");
 
-  let lastEncodingProgress = 0; // Track last progress to avoid duplicate messages
-  let hasStartedEncoding = false; // Track if encoding has started
+  let lastStatusLabel = null;
 
   encodingIntervalRef.current = setInterval(async () => {
     try {
-      const statusResp = await axios.get(
-        `${UPLOAD_URL}/api/upload/video/${vid}/status`,
+      const res = await axios.get(
+        `${UPLOAD_URL}/api/upload/in-progress`,
         {
-          headers: { Authorization: `Bearer ${UPLOAD_TOKEN}` },
+          headers: {
+            "X-Hive-Username": user,
+          },
         }
       );
 
-      const data = statusResp.data.data.video;
+      const data = res.data?.data;
+      
+      console.log("Polling response:", data);
 
-      console.log(data)
-
-      // ENCODING
-      if (data.status === "encoding") {
-        const encodingPct = data.encodingProgress || 0;
-        
-        // Show message when encoding starts
-        if (!hasStartedEncoding) {
-          addMessage("🎬 Video encoding has started!", "info");
-          hasStartedEncoding = true;
-        }
-        
-        // Update progress only if it changed by at least 5% (to avoid spam)
-        if (encodingPct - lastEncodingProgress >= 5) {
-          addMessage(`⚙️ Encoding progress: ${encodingPct}%`, "info");
-          lastEncodingProgress = encodingPct;
-        }
-        
-        setStatusText(`Encoding video… (${encodingPct}%)`);
-      }
-
-      // PUBLISHING
-      if (data.status === "publishing") {
-        if (hasStartedEncoding) {
-          addMessage("✅ Encoding completed (100%)", "success");
-          hasStartedEncoding = false; // Reset for next stage
-        }
-        setStatusText("Publishing to blockchain…");
-        addMessage("📡 Publishing video to blockchain…", "info");
-
-      }
-
-      // PUBLISHED
-      if (data.status === "published") {
+      // Check if no videos are being processed (PUBLISHED state)
+      if (!data?.videos || data.videos.length === 0) {
         clearInterval(encodingIntervalRef.current);
         setStatusText("Completed");
         setCompleted(true);
         setUploading(false);
-        setIsSubmitting(false); // NEW: Mark as no longer submitting
+        setIsSubmitting(false);
         addMessage("🎉 Video successfully published!", "success");
+        return;
       }
 
-      // FAILED
-      if (data.status === "failed") {
-        clearInterval(encodingIntervalRef.current);
-        setUploading(false);
-        setIsSubmitting(false); // NEW: Mark as no longer submitting
-        addMessage("❌ Video processing failed", "error");
-        toast.error("Video processing failed");
+      // Find the exact video
+      const video = data.videos.find(v => v.video_id === vid);
+      
+      if (!video) {
+        console.warn("Video not found in progress list");
+        return;
       }
+
+      const { status_label } = video;
+
+      // Update status message only when it changes
+      if (status_label && status_label !== lastStatusLabel) {
+        addMessage(`🎬 ${status_label}`, "info");
+        setStatusText(status_label);
+        lastStatusLabel = status_label;
+      }
+
     } catch (err) {
-      addMessage("⚠️ Polling error: " + err.message, "error");
+      addMessage(`⚠️ Polling error: ${err.message}`, "error");
       console.error("Polling error:", err);
     }
-  }, 5000); // Poll every 5 seconds
+  }, 5000);
 };
+
 
   // --------------------------------------------------------
   // HANDLE POST VIDEO BUTTON CLICK

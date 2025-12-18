@@ -249,6 +249,7 @@ $bg: #ffffff;
         display: flex;
         gap: 1rem;
         align-items: flex-end;
+        
 
         .avatar {
           height: 5rem;
@@ -274,7 +275,7 @@ $bg: #ffffff;
           }
         }
 
-        .user-meta {
+        .user-metas{
           margin-top: 40px;
           @include mix.respond(phone) {
               margin-top: 20px;

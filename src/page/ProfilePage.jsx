@@ -66,6 +66,7 @@ function ProfilePage() {
     // stop polling when done
     if (json.data.count === 0 && pollingRef.current) {
       clearInterval(pollingRef.current);
+      refetch();
       pollingRef.current = null;
     }
   } catch (err) {
@@ -80,19 +81,42 @@ function ProfilePage() {
   /* ===============================
      START POLLING ON LOAD
   =============================== */
-  useEffect(() => {
-    fetchInProgressUploads();
+// useEffect(() => {
+//   if (!user) return;
 
-    pollingRef.current = setInterval(() => {
-      fetchInProgressUploads();
-    }, 5000);
+//   // run immediately
+//   fetchInProgressUploads();
 
-    return () => {
-      if (pollingRef.current) {
-        clearInterval(pollingRef.current);
-      }
-    };
-  }, [user]);
+//   // clear any existing interval first
+//   if (pollingRef.current) {
+//     clearInterval(pollingRef.current);
+//   }
+
+//   pollingRef.current = setInterval(() => {
+//     fetchInProgressUploads();
+//   }, 5000);
+
+//   return () => {
+//     if (pollingRef.current) {
+//       clearInterval(pollingRef.current);
+//       pollingRef.current = null;
+//     }
+//   };
+// }, [user, uploadStatus]);
+
+
+  useEffect(() => { 
+    fetchInProgressUploads(); 
+    pollingRef.current = setInterval(() => { fetchInProgressUploads(); }, 5000); 
+    return () => { if (pollingRef.current) { clearInterval(pollingRef.current); } };
+   }, [user ]);
+
+   useEffect(() => { 
+    fetchInProgressUploads(); 
+    pollingRef.current = setInterval(() => { fetchInProgressUploads(); }, 5000); 
+    return () => { if (pollingRef.current) { clearInterval(pollingRef.current); } };
+   }, [ uploadStatus]);
+
 
   /* ===============================
      FOLLOWERS
@@ -123,6 +147,7 @@ function ProfilePage() {
     hasNextPage,
     isFetchingNextPage,
     isLoading,
+    refetch,
   } = useInfiniteQuery({
     queryKey: ["ProfilePage", user],
     queryFn: fetchVideos,
@@ -186,10 +211,14 @@ function ProfilePage() {
 
               <div className="user-meta">
                 <h2>{user}</h2>
-                <span className="status-dot">
-                  <span className="dot" /> Verified creator
-                </span>
+
+                <div className="user-badges">
+                  <span className="status-dot">
+                    <span className="dot" /> Verified creator
+                  </span>
+                </div>
               </div>
+
             </div>
 
             <div className="button-group">

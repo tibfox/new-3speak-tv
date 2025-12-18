@@ -8,7 +8,7 @@ export default function BackgroundJobModal() {
   if (!hasBackgroundJob) return null;
 
   return (
-    <div className="upload-warning-modal">
+    <div className="upload-warning-modals">
       <div className="modal-card">
         <h3>Background job running</h3>
         <p>
