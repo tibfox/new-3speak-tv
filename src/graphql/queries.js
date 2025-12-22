@@ -1028,8 +1028,8 @@ export const FIRST_UPLOAD_FEED = gql`
 `;
 
 export const NEW_CONTENT = gql`
-  query MyQuery {
-    socialFeed(spkvideo: { only: true, firstUpload: true }) {
+  query NewContent($limit: Int = 50, $skip: Int = 0) {
+    socialFeed(spkvideo: { only: true, firstUpload: true }, pagination: { limit: $limit, skip: $skip }) {
       items {
         ... on HivePost {
           permlink
