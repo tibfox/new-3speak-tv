@@ -7,7 +7,7 @@
     .title {
       font-size: 1.5rem; 
       font-weight: 700;
-      color: #111; 
+      color: var(--text-primary); 
       margin-bottom: 0.5rem; 
     }
     P{
@@ -17,7 +17,7 @@
     }
 
     .subtitle {
-      color: #888; 
+      color: var(--text-secondary); 
     }
   }
 
@@ -35,13 +35,13 @@
     button {
       padding: 0.5rem 1rem; 
       border-radius: 0.5rem;
-      background-color: #1c64e0; 
+      background-color: var(--accent-primary); 
       color: #fff; 
       border: none;
       cursor: pointer;
       transition: background-color 0.3s ease;
       &:disabled {
-        background-color: #c0c0c0; 
+        background-color: var(--text-muted); 
         cursor: not-allowed;
       }
     }
@@ -49,18 +49,23 @@
 }
 
 .file-upload {
-  background: #fff;
-  border: 2px dashed #ccc; 
+  background: #ffffff;
+  border: 2px dashed #e5e7eb; 
   border-radius: 0.5rem;
   padding: 1rem;
-  transition: border-color 0.3s ease;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
   width: 700px;
   @include mix.respond(phone) {
         width: 90%;
       }
 
+  [data-theme="dark"] & {
+    background: #1a1a1a;
+    border-color: #3d3d3d;
+  }
+
   &:hover {
-    border-color: rgba(28, 100, 224, 0.5); 
+    border-color: #1c64e0; 
   }
 
   .content {
@@ -95,19 +100,19 @@
       .title {
         font-size: 1.125rem; 
         font-weight: 600;
-        color: #111; 
+        color: var(--text-primary); 
         margin-bottom: 0.5rem; 
       }
 
       .description {
-        color: #888; 
+        color: var(--text-secondary); 
         font-size: 0.875rem; 
         margin-bottom: 1rem; 
       }
 
       .formats {
         font-size: 0.75rem; 
-        color: #888; 
+        color: var(--text-secondary); 
       }
     }
     .isselected-wrap{
@@ -126,7 +131,7 @@
     }
 
     .button {
-      background-color: red; 
+      background-color: #1c64e0; 
       color: #fff;
       padding: 0.5rem 1rem; 
       border: none;
@@ -136,7 +141,7 @@
       font-size: 14px;
 
       &:hover {
-        background-color: red;  // hsla
+        background-color: #0f52ba;
       }
     }
   }
@@ -147,7 +152,7 @@
 }
 
 .file-preview {
-  background: #fff;
+  background: var(--bg-secondary);
   border-radius: 0.5rem;
   padding: 1rem; // spacing-4
 
@@ -162,9 +167,9 @@
       justify-content: center;
       width: 2.5rem; // spacing-10
       height: 2.5rem;
-      background-color: rgba(28, 100, 224, 0.1); // hsla(--primary, 0.1)
+      background-color: var(--accent-light);
       border-radius: 0.625rem; // --radius + 2px
-      color: #1c64e0; // --primary
+      color: var(--accent-primary);
     }
 
     .file-preview__info {
@@ -172,12 +177,12 @@
 
       .file-preview__name {
         font-weight: 500;
-        color: #111; // --foreground
+        color: var(--text-primary);
       }
 
       .file-preview__size {
         font-size: 0.875rem; // sm
-        color: #888; // --muted-foreground
+        color: var(--text-secondary);
       }
     }
   }
@@ -187,14 +192,14 @@
   position: relative;
   width: 100%; // Adjust width as needed
   height: 20px; // Adjust height for desired thickness
-  background-color: #e0e0e0; // Light gray for the background
+  background-color: var(--bg-tertiary); // Light gray for the background
   border-radius: 10px; // Rounded corners
   overflow: hidden; // Ensure content doesn’t spill outside
   margin: 10px 0;
 
   .progress-bar-fill {
     height: 100%; // Matches the height of the container
-    background-color: #4caf50; // Green for the filled portion
+    background-color: var(--success-color, #4caf50); // Green for the filled portion
     width: 0; 
     transition: width 0.4s ease-in-out; 
     display: flex;
@@ -211,7 +216,7 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%); 
-    color: black; 
+    color: var(--text-primary); 
     font-size: 14px; 
     font-weight: bold;
   }
