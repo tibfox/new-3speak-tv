@@ -29,14 +29,24 @@
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0 1px 6px 0 #20212447;
-  img {
+  > img {
+    // Only apply avatar styles to direct child images (the avatar)
     width: 35px;
     height: 35px;
     border-radius: 50%;
     margin-right: 15px;
+    flex-shrink: 0;
     @include respond(phone) {
       margin-right: 8px;
     }
+  }
+  // Content images should display normally
+  .comment-content img {
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 8px 0;
   }
   h3 {
     font-size: 14px;
