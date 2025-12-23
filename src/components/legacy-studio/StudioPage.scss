@@ -28,11 +28,15 @@
   background-color: #fff;
   padding: 10px;
   border-radius: 10px;
-  // margin-bottom: 40px;
   margin: 0 auto 0px;
   border-width: 1px;
   border-style: solid;
   border-color: #e5e7eb;
+  
+  [data-theme="dark"] & {
+    background-color: #1a1a1a;
+    border-color: #3d3d3d;
+  }
   @include mix.respond(phone) {
     width: 90%;
     margin-bottom: 20px;
@@ -151,7 +155,6 @@
   gap: 10px;
   padding: 16px;
   border-radius: 9px;
-  // background-color: #fff;
   @include mix.respond(phone) {
     flex-direction: column;
   }
@@ -159,6 +162,11 @@
     background-color: #fff;
     width: 80%;
     padding: 30px;
+    border-radius: 8px;
+    
+    [data-theme="dark"] & {
+      background-color: #1a1a1a;
+    }
     @include mix.respond(phone) {
       width: 100%;
       padding: 10px;
@@ -179,6 +187,10 @@
         line-height: 1.5;
         color: #858796;
         text-align: left;
+        
+        [data-theme="dark"] & {
+          color: #aaaaaa;
+        }
       }
       .preview-tags {
         margin-top: 5px;
@@ -192,12 +204,17 @@
           font-size: 12.35px;
           background-color: #ccc;
           font-weight: 500;
+          
+          [data-theme="dark"] & {
+            background-color: #3d3d3d;
+            color: #f1f1f1;
+          }
         }
       }
       input {
         height: auto;
-        background-color: #fff;
-        border: 1px solid #ccc;
+        background-color: #eaecf4;
+        border: 1px solid #d1d3e2;
         box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
         padding: 4px 6px;
         color: #555;
@@ -207,14 +224,19 @@
         line-height: 22px;
         cursor: text;
         outline: none;
-        background-color: #eaecf4;
-        border: 1px solid #d1d3e2;
         @include mix.respond(phone) {
           font-size: 16px;
         }
+        
+        [data-theme="dark"] & {
+          background-color: #2d2d2d;
+          border-color: #3d3d3d;
+          color: #f1f1f1;
+        }
       }
       .wrap-dec {
-        // height: 300px;
+        height: 400px;
+        min-height: 300px;
         margin-bottom: 3px;
       }
       .wrap {
@@ -254,6 +276,11 @@
       border-radius: 4px;
       padding: 7px 10px;
       cursor: pointer;
+      
+      [data-theme="dark"] & {
+        border-color: #3d3d3d;
+      }
+      
       .wrap {
         display: flex;
         align-items: center;
@@ -266,6 +293,10 @@
         font-size: 14px;
         color: #858796;
         font-weight: 500;
+        
+        [data-theme="dark"] & {
+          color: #aaaaaa;
+        }
       }
     }
 
@@ -274,6 +305,11 @@
       box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
       padding: 10px;
       border-radius: 4px;
+      
+      [data-theme="dark"] & {
+        border-color: #3d3d3d;
+      }
+      
       .beneficiary-wrap {
         display: flex;
         align-items: center;
@@ -283,6 +319,11 @@
           display: flex;
           flex-direction: column;
           color: #555;
+          
+          [data-theme="dark"] & {
+            color: #aaaaaa;
+          }
+          
           :first-child {
             font-size: 12.35px;
             font-weight: 600;
@@ -304,9 +345,18 @@
           background-color: #ccc;
           gap: 5px;
           cursor: pointer;
+          
+          [data-theme="dark"] & {
+            background-color: #3d3d3d;
+          }
+          
           span {
             font-size: 12.35px;
             color: black;
+            
+            [data-theme="dark"] & {
+              color: #f1f1f1;
+            }
           }
         }
 
@@ -322,6 +372,12 @@
           cursor: pointer;
           transition: all 0.3s ease;
           appearance: none; /* Remove default dropdown arrow for consistent styling */
+          
+          [data-theme="dark"] & {
+            background-color: #2d2d2d;
+            border-color: #3d3d3d;
+            color: #f1f1f1;
+          }
         }
 
         select:focus {
@@ -331,11 +387,22 @@
 
         select:hover {
           background-color: #f1f1f1;
+          
+          [data-theme="dark"] & {
+            background-color: #3d3d3d;
+          }
         }
 
         select option {
           padding: 10px;
           font-size: 14px;
+          background-color: #fff;
+          color: #000;
+          
+          [data-theme="dark"] & {
+            background-color: #2d2d2d;
+            color: #f1f1f1;
+          }
         }
 
         //   .select-wrap {

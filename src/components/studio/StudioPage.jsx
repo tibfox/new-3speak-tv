@@ -8,8 +8,8 @@ import { IoIosArrowDropdownCircle } from "react-icons/io";
 import Upload_modal from "../modal/Upload_modal";
 import cloud from "../../assets/image/upload-cloud.png"
 import { MdPeopleAlt } from "react-icons/md";
-import DOMPurify from 'dompurify';
-import TextEditor from "./TextEditor"
+import MarkdownComposer from "./MarkdownComposer"
+import EditorPreview from "../Editor/EditorPreview"
 import {  toast } from 'sonner'
 import { useNavigate } from "react-router-dom";
 import { TailChase } from 'ldrs/react'
@@ -169,8 +169,6 @@ function StudioPage() {
     }
   };
 
-  const sanitizedDescription = DOMPurify.sanitize(description);
-
 
   return (
     <>
@@ -199,8 +197,7 @@ function StudioPage() {
         <div className="input-group">
           <label htmlFor="">Description</label>
           <div className="wrap-dec">
-          {/* <ReactQuill theme="snow" value={description} onChange={setDescription}  style={{ height: "90%", }} /> */}
-          <TextEditor description={description} setDescription={setDescription} style={{ height: "80%", }} />
+          <MarkdownComposer value={description} onChange={setDescription} placeholder="Write your video description here... Supports markdown formatting!" />
           </div>
         </div>
 
@@ -268,7 +265,7 @@ function StudioPage() {
 
         {/* Show the description */}
         <div className="preview-description">
-          {sanitizedDescription &&  <span dangerouslySetInnerHTML={{ __html: sanitizedDescription }}></span>}
+          {description && <EditorPreview content={description} />}
         </div>
 
         {/* Show the tags */}

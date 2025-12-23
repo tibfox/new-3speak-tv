@@ -445,7 +445,7 @@ const handleProfileNavigate = (user) => {
             </span> */}
             <span className="wrap">
               <GiTwoCoins className="icon" />
-              <span>${videoDetails?.stats.total_hive_reward.toFixed(2)}</span>
+              <span>${videoDetails?.stats?.total_hive_reward?.toFixed(2) ?? '0.00'}</span>
             </span>
             {/* <span>Reply</span> */}
             <button className="tip-btn" onClick={() => setIsTipModalOpen(true)}>Tip</button>

@@ -17,6 +17,11 @@ $overlay: rgba(15, 23, 42, 0.6);
   background-color: #f8f9fc;
   border-radius: 10px;
   margin-top: 20px;
+  
+  [data-theme="dark"] & {
+    background-color: #0f0f0f;
+  }
+  
   @include mix.respond(phone) {
     width: 95%;
     padding: 0px;
@@ -30,6 +35,11 @@ $overlay: rgba(15, 23, 42, 0.6);
     border-radius: 12px;
     background-color: #fff;
     font-family: "Nunito", sans-serif;
+    
+    [data-theme="dark"] & {
+      background-color: #1a1a1a;
+      border-color: #3d3d3d;
+    }
 
     @media (max-width: 768px) {
       width: 100%;
@@ -40,6 +50,11 @@ $overlay: rgba(15, 23, 42, 0.6);
       color: #4b5563;
       font-size: 18px;
       margin-bottom: 16px;
+      
+      [data-theme="dark"] & {
+        color: #f1f1f1;
+      }
+      
       @media (max-width: 768px) {
         font-size: 14px;
         margin-bottom: 5px;
@@ -55,6 +70,11 @@ $overlay: rgba(15, 23, 42, 0.6);
         font-weight: 600;
         color: #6b7280;
         margin-bottom: 5px;
+        
+        [data-theme="dark"] & {
+          color: #aaaaaa;
+        }
+        
         @media (max-width: 768px) {
           font-size: 14px;
           margin-bottom: 1px;
@@ -71,6 +91,10 @@ $overlay: rgba(15, 23, 42, 0.6);
         font-size: 15px;
         font-weight: 500;
         color: #374151;
+        
+        [data-theme="dark"] & {
+          color: #f1f1f1;
+        }
       }
     }
 
@@ -92,6 +116,11 @@ $overlay: rgba(15, 23, 42, 0.6);
         border-radius: 12px;
         font-size: 13px;
         font-weight: 500;
+        
+        [data-theme="dark"] & {
+          background-color: #3d3d3d;
+          color: #f1f1f1;
+        }
       }
     }
   }

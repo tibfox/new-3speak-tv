@@ -9,7 +9,7 @@ import { Navigate } from 'react-router-dom';
 import { useLegacyUpload } from '../../context/LegacyUploadContext';
 import { LineSpinner } from 'ldrs/react';
 import checker from "../../../public/images/checker.png"
-import TiptapEditor from '../Editor/TiptapEditor';
+import MarkdownComposer from '../studio/MarkdownComposer';
 
 function Details() {
     const {
@@ -129,7 +129,7 @@ function Details() {
         <div className="input-group">
           <label htmlFor="">Description</label>
           <div className="wrap-dec">
-          <TiptapEditor value={description} onChange={setDescription} />
+          <MarkdownComposer value={description} onChange={setDescription} placeholder="Write your video description here... Supports markdown formatting!" />
           </div>
         </div>
 
