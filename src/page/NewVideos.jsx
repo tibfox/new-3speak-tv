@@ -16,17 +16,30 @@ const NewVideos = () => {
     fetchPolicy: 'network-only', // Prevent cache from causing duplicate onCompleted calls
     onCompleted: (newData) => {
       const newItems = newData?.socialFeed?.items || [];
+      
+      // Helper to deduplicate items by author+permlink
+      const deduplicateItems = (items) => {
+        const seen = new Set();
+        return items.filter(item => {
+          const key = `${item.author?.username || item.author}-${item.permlink}`;
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+      };
+      
       if (skip === 0) {
-        setAllVideos(newItems);
+        // Deduplicate even the first batch (API returns duplicates)
+        setAllVideos(deduplicateItems(newItems));
       } else {
-        // Deduplicate by permlink + author
+        // Deduplicate against existing + new items
         setAllVideos(prev => {
           const existingKeys = new Set(prev.map(v => `${v.author?.username || v.author}-${v.permlink}`));
           const uniqueNew = newItems.filter(item => {
             const key = `${item.author?.username || item.author}-${item.permlink}`;
             return !existingKeys.has(key);
           });
-          return [...prev, ...uniqueNew];
+          return [...prev, ...deduplicateItems(uniqueNew)];
         });
       }
     }
