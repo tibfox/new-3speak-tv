@@ -6,6 +6,10 @@
   background: #ffffff;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  [data-theme="dark"] & {
+    background-color: #1a1a1a;
+    border: solid 1px rgba(128, 128, 128, 0.144);
+  }
   @include mix.respond(phone) {
     padding: 15px 15px;
   }
@@ -18,7 +22,7 @@
     width: 50px;
     height: 50px;
     margin: 0 auto 10px;
-    background: linear-gradient(135deg, #8b9ff7 0%, #a89ff7 100%);
+    background: red;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -32,6 +36,9 @@
     color: #1a1a1a;
     text-align: center;
     margin: 0 0 8px 0;
+    [data-theme="dark"] & {
+      color: var(--text-primary);
+    }
   }
 
   .upload-subtitle {
@@ -49,6 +56,10 @@
     align-items: center;
     justify-content: space-between;
     margin-bottom: 20px;
+    [data-theme="dark"] & {
+      background-color: #1a1a1a;
+      border: solid 1px rgba(128, 128, 128, 0.144);
+    }
     @include mix.respond(phone) {
       padding: 10px 20px;
       margin-bottom: 15px;
@@ -58,6 +69,9 @@
       font-size: 15px;
       font-weight: 500;
       color: #4b5563;
+      [data-theme="dark"] & {
+        color: #cac6c6cc;
+      }
       @include mix.respond(phone) {
         font-size: 12px;
       }
@@ -121,6 +135,9 @@
         font-size: 15px;
         font-weight: 500;
         color: #1a1a1a;
+        [data-theme="dark"] & {
+          color: var(--text-primary);
+        }
         @include mix.respond(phone) {
           font-size: 15px;
         }
@@ -200,34 +217,40 @@
     }
   }
 
-.caution-wrap {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  .caution-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 
-  padding: 10px 8px;
-  border-radius: 8px;
-  border: 1px solid rgb(247, 193, 189);
-  background-color: #fcebeb;
-  color: red;
-  margin: 6px 0;
-  font-size: 14px;
+    padding: 10px 8px;
+    border-radius: 8px;
+    border: 1px solid rgb(247, 193, 189);
+    background-color: #fcebeb;
+    color: red;
+    margin: 6px 0;
+    font-size: 14px;
+    [data-theme="dark"] & {
+      background-color: #fcebeb8a;
+      border: 1px solid rgba(247, 193, 189, 0.466);
+      // border-color: #3d3d3d;
+      color: #fff;
+    }
 
-  &.can-leave {
-    border-color: #4caf50;
-    background-color: #e8f5e9;
-    color: #2e7d32;
+    &.can-leave {
+      border-color: #4caf50;
+      background-color: #e8f5e9;
+      color: #2e7d32;
+    }
   }
-}
 
-.bip-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background-color: rgb(247, 11, 11);
-  flex-shrink: 0;
-  animation: bip 1.2s infinite ease-in-out;
-}
+  .bip-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: rgb(247, 11, 11);
+    flex-shrink: 0;
+    animation: bip 1.2s infinite ease-in-out;
+  }
 
   .activity-log {
     .activity-log-header {
@@ -305,6 +328,11 @@
         border-left: 3px solid;
         background: #f9fafb;
         position: relative;
+        [data-theme="dark"] & {
+          background-color: #1a1a1a;
+          border: solid 1px rgba(128, 128, 128, 0.144);
+          color: var(--text-primary);
+        }
         @include mix.respond(phone) {
           padding: 12px;
         }
@@ -344,26 +372,34 @@
             color: #1f2937;
             margin: 0;
             line-height: 1.5;
+            [data-theme="dark"] & {
+              color: var(--text-primary);
+            }
           }
         }
       }
     }
-    .notification-wrap{
+    .notification-wrap {
       margin: 6px 0px;
       padding: 5px;
       border-radius: 8px;
       border: solid 1px rgba(128, 128, 128, 0.274);
       background: #e8eef9;
-      p{
+      [data-theme="dark"] & {
+        background-color: #1a1a1a;
+        // border-color: #3d3d3d;
+        color: #fff;
+      }
+
+      p {
         font-size: 12.35px;
         margin-top: 4px;
-        
+
         .monitor-link {
           color: red; // Discord color
           cursor: pointer;
           font-weight: 600;
           text-decoration: none;
-
 
           &:hover {
             text-decoration: underline;
@@ -397,6 +433,10 @@
   padding: 40px 20px;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.164);
+     [data-theme="dark"] & {
+    background-color: #1a1a1a;
+    border: solid 1px rgba(133, 124, 124, 0.493);
+  }
   //   background-color: green;
 
   .success-icon {
@@ -417,6 +457,9 @@
     font-weight: 600;
     color: #1a1a1a;
     margin: 0 0 16px 0;
+         [data-theme="dark"] & {
+color: var(--text-primary);
+  }
     @include mix.respond(phone) {
       font-size: 22px;
     }
@@ -454,7 +497,6 @@
     }
   }
 }
-
 
 /* Smooth attention-grabbing blink */
 @keyframes bip {

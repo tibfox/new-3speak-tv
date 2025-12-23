@@ -11,6 +11,7 @@ import data from '@emoji-mart/data';
 import { uploadImageToHive } from '../Editor/uploadImageToHiv';
 import { toast } from 'sonner';
 import './MarkdownComposer.scss';
+import { useAppStore } from '../../lib/store';
 
 // Lazy-loaded renderer
 let rendererPromise = null;
@@ -35,6 +36,7 @@ const getRenderer = async () => {
 };
 
 const MarkdownComposer = ({ value, onChange, placeholder = "Write your description here..." }) => {
+  const { theme } = useAppStore()
   const textareaRef = useRef(null);
   const [viewMode, setViewMode] = useState('editor'); // 'editor' | 'preview' | 'split'
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -344,7 +346,7 @@ const MarkdownComposer = ({ value, onChange, placeholder = "Write your descripti
                 <EmojiPicker 
                   data={data} 
                   onEmojiSelect={handleEmojiSelect}
-                  theme="auto"
+                  theme={theme}
                   previewPosition="none"
                 />
               </div>
@@ -367,7 +369,7 @@ const MarkdownComposer = ({ value, onChange, placeholder = "Write your descripti
             type="button" 
             onClick={() => setViewMode('split')} 
             title="Split View"
-            className={viewMode === 'split' ? 'active' : ''}
+            className={`show ${viewMode === 'split' ? 'active' : ''}`}
           >
             <FaColumns />
           </button>

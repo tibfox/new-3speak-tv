@@ -21,6 +21,10 @@
     background-color: #fff;
     border-radius: 20px 0px 0px 20px;
     box-sizing: border-box;
+    [data-theme="dark"] & {
+      background-color: #1a1a1a;
+      border: solid 1px rgba(128, 128, 128, 0.144);
+    }
     @include respond(phone) {
       width: 60%;
     }
@@ -57,6 +61,9 @@
         text-align: center;
         color: #fff;
         font-weight: 600;
+        [data-theme="dark"] & {
+            color: black;
+          }
       }
       .power-wrap {
         display: flex;
@@ -66,6 +73,10 @@
         position: relative;
         .wrap-in {
           position: relative;
+          // [data-theme="dark"] & {
+          //   background-color: #1a1a1a;
+          //   border: solid 1px rgba(128, 128, 128, 0.144);
+          // }
 
           .tooltip {
             position: absolute;
@@ -105,6 +116,10 @@
             border-radius: 7px;
             font-size: 12.3px;
             background-color: #fff;
+            [data-theme="dark"] & {
+            background-color: #1a1a1a;
+            border: solid 1px rgba(128, 128, 128, 0.144);
+          }
             &:hover + .tooltip {
               opacity: 1;
               pointer-events: auto;
@@ -115,7 +130,7 @@
     }
     .list-wrap {
       padding: 20px 20px;
-      color: rgb(90, 90, 90);
+      // color: rgb(90, 90, 90);
       font-weight: 500;
       font-size: 14px;
       .wrap {
@@ -130,8 +145,15 @@
         width: fit-content;
         flex-wrap: wrap;
         cursor: pointer;
+        [data-theme="dark"] & {
+          color: var(--text-primary);
+        }
+
         &.dropdown-parent {
           position: relative;
+        }
+        &:hover {
+          color: var(--link-hover);
         }
         span {
           font-size: 14px;
@@ -180,6 +202,10 @@
     padding: 0.5rem 0; // py-2
     padding-top: 15px;
     border: 1px solid #e5e7eb; // border-gray-200
+    [data-theme="dark"] & {
+      background-color: #1a1a1a;
+      border: solid 1px rgba(128, 128, 128, 0.144);
+    }
     .close-btn {
       position: absolute;
       // padding: 2px 0px;
@@ -198,6 +224,9 @@
       color: #374151; // text-gray-700
       text-decoration: none;
       font-size: 13.5px;
+      [data-theme="dark"] & {
+        color: var(--text-primary);
+      }
       img {
         width: 20px;
         height: 20px;
@@ -208,9 +237,9 @@
         background-color: #7a96ce2c; // hover:bg-gray-100
       }
     }
-    button{
+    button {
       margin: 0px 16px;
-      background: #E32933;
+      background: #e32933;
       color: #fff;
       border: none;
       padding: 2px 4px;

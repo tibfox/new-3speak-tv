@@ -92,6 +92,11 @@
           background-color: var(--accent-primary);
           color: var(--text-inverse);
         }
+        &.show{
+          @include mix.respond(phone) {
+        display: none;
+      }         
+        }
       }
     }
 
@@ -131,6 +136,12 @@
 
         @include mix.respond(phone) {
           right: -100px;
+        }
+      }
+      @media (max-width: 768px) {
+        em-emoji-picker,
+        .em-emoji-picker {
+          width: 270px;
         }
       }
     }
@@ -195,7 +206,7 @@
       border: none;
       outline: none;
       resize: none;
-      font-family: 'SF Mono', 'Fira Code', 'Monaco', 'Inconsolata', monospace;
+      font-family: "SF Mono", "Fira Code", "Monaco", "Inconsolata", monospace;
       font-size: 14px;
       line-height: 1.6;
       background-color: var(--bg-secondary);
@@ -268,18 +279,35 @@
       font-size: 14px;
       line-height: 1.7;
 
-      h1, h2, h3, h4, h5, h6 {
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
         margin: 1.5em 0 0.5em;
         font-weight: 600;
         color: var(--text-primary);
       }
 
-      h1 { font-size: 1.8em; }
-      h2 { font-size: 1.5em; }
-      h3 { font-size: 1.3em; }
-      h4 { font-size: 1.1em; }
-      h5 { font-size: 1em; }
-      h6 { font-size: 0.9em; }
+      h1 {
+        font-size: 1.8em;
+      }
+      h2 {
+        font-size: 1.5em;
+      }
+      h3 {
+        font-size: 1.3em;
+      }
+      h4 {
+        font-size: 1.1em;
+      }
+      h5 {
+        font-size: 1em;
+      }
+      h6 {
+        font-size: 0.9em;
+      }
 
       p {
         margin: 0.8em 0;
@@ -294,7 +322,8 @@
         }
       }
 
-      ul, ol {
+      ul,
+      ol {
         margin: 0.8em 0;
         padding-left: 2em;
       }
@@ -314,7 +343,7 @@
 
       code {
         padding: 0.2em 0.4em;
-        font-family: 'SF Mono', 'Fira Code', monospace;
+        font-family: "SF Mono", "Fira Code", monospace;
         font-size: 0.9em;
         background-color: var(--bg-tertiary);
         border-radius: 4px;
@@ -345,7 +374,8 @@
         margin: 1em 0;
         border-collapse: collapse;
 
-        th, td {
+        th,
+        td {
           padding: 8px 12px;
           border: 1px solid var(--border-color);
           text-align: left;

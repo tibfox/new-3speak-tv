@@ -38,7 +38,7 @@
     border-color: #3d3d3d;
   }
   @include mix.respond(phone) {
-    width: 90%;
+    width: 97%;
     margin-bottom: 20px;
   }
   .content-wrap {
@@ -157,6 +157,7 @@
   border-radius: 9px;
   @include mix.respond(phone) {
     flex-direction: column;
+    padding: 0px
   }
   .video-items {
     background-color: #fff;

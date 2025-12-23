@@ -4,6 +4,7 @@ import '../../page/Login/KeyChainLogin.scss';
 import '../../page/Login/Login.scss';
 import axios from "axios";
 import logo from '../../assets/image/3S_logo.svg';
+import logoDark from '../../assets/image/3S_logodark.png';
 import keychainImg from '../../assets/image/keychain.png';
 import hiveauthImg from '../../../public/images/hiveauth.jpeg';
 import { useNavigate } from 'react-router-dom';
@@ -25,7 +26,7 @@ const APP_META = {
 
 function AddAccount_modal({ isOpen, close}) {
     const client = axios.create({});
-    const { initializeAuth, switchAccount, clearAccount } = useAppStore();
+    const { initializeAuth, switchAccount, clearAccount, theme } = useAppStore();
     const studioEndPoint = "https://studio.3speak.tv";
     const [username, setUsername] = useState('');
     const [accountList, setAccountList] = useState([]);
@@ -216,7 +217,8 @@ function AddAccount_modal({ isOpen, close}) {
           <div className="login-container">
 
         <div className="main-login-keywrapper-add">
-          <img src={logo} alt="3Speak Logo" />
+          {theme === "light" ? <img src={logo} alt="3Speak Logo" /> :
+                    <img src={logoDark} alt="3Speak Logo" />}
           <span>Login with your username</span>
 
           <input

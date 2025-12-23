@@ -65,7 +65,7 @@
   }
 
   &:hover {
-    border-color: #1c64e0; 
+    border-color: red; 
   }
 
   .content {
@@ -82,11 +82,7 @@
       justify-content: center;
       width: 4rem; 
       height: 4rem;
-      background: linear-gradient(
-        to right,
-        #1c64e0,
-        #0f52ba
-      ); 
+      background: red; 
       border-radius: 50%;
       color: #fff;
     }

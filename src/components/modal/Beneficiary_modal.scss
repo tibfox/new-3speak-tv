@@ -10,17 +10,22 @@
     margin-top: 8px;
     font-weight: 500;
   }
-  .user-wrap{
+  .user-wrap {
     display: flex;
     align-items: center;
     justify-content: space-between;
     background-color: #eaecf4;
-       border: 1px solid #d1d3e2;
-       padding: 10px 6px;
-       border-radius:  6px;
+    border: 1px solid #d1d3e2;
+    padding: 10px 6px;
+    border-radius: 6px;
 
+        [data-theme="dark"] & {
+    background-color: rgb(59, 59, 59);
+    // border-color: #3d3d3d;
+    color: #fff;
   }
-  
+  }
+
   .reward-main {
     display: flex;
     align-items: center;
@@ -40,16 +45,26 @@
       height: 100%;
       padding: 0px 4px;
       background-color: #eaecf4;
-        border: 1px solid #d1d3e2;
-        border-radius: 6px;
+      border: 1px solid #d1d3e2;
+      border-radius: 6px;
+              [data-theme="dark"] & {
+    background-color: rgb(59, 59, 59);
+    // border-color: #3d3d3d;
+    color: #fff;
+  }
       input {
         width: 200px;
         height: 100%;
         border: none;
         outline: none;
-        
+
         background-color: #eaecf4;
         padding: 1px 4px;
+                [data-theme="dark"] & {
+    background-color: rgb(59, 59, 59);
+    // border-color: #3d3d3d;
+    color: #fff;
+  }
         @include mix.respond(phone) {
           width: 150px;
           font-size: 16px;
@@ -73,14 +88,19 @@
         padding: 1px 4px;
         border-radius: 6px;
         -webkit-appearance: none; // Remove increment/decrement arrows on Safari
-       -moz-appearance: textfield; // Remove increment/decrement arrows on Firefox
-       appearance: none;
-       background-color: #eaecf4;
-       border: 1px solid #d1d3e2;
-       @include mix.respond(phone) {
-        width: 30px;
-        font-size: 16px;
-      }
+        -moz-appearance: textfield; // Remove increment/decrement arrows on Firefox
+        appearance: none;
+        background-color: #eaecf4;
+        border: 1px solid #d1d3e2;
+                [data-theme="dark"] & {
+    background-color: rgb(59, 59, 59);
+    // border-color: #3d3d3d;
+    color: #fff;
+  }
+        @include mix.respond(phone) {
+          width: 30px;
+          font-size: 16px;
+        }
       }
       button {
         padding: 10px 20px;
@@ -105,7 +125,7 @@
       align-items: center;
       justify-content: space-between;
       background-color: rgba(214, 93, 56, 0.144);
-      border-bottom: 1px solid rgb(243 244 246 );
+      border-bottom: 1px solid rgb(243 244 246);
       padding: 10px 6px;
       border-radius: 7px;
       margin-bottom: 5px;
@@ -125,72 +145,69 @@
     }
   }
 
-  .last-btn-wrap{
+  .last-btn-wrap {
     display: flex;
     justify-content: center;
-    align-self:center;
+    align-self: center;
     margin-top: 13px;
     gap: 7px;
-    :first-child{
-        padding: 8px 20px;
-        border-radius: 6px;
-        border: none;
-        background-color: #accc;
-        // color: #FFF;
-        // background-color: #4e73df;
-    // border-color: #4e73df;
+    :first-child {
+      padding: 8px 20px;
+      border-radius: 6px;
+      border: none;
+      background-color: #accc;
+      // color: #FFF;
+      // background-color: #4e73df;
+      // border-color: #4e73df;
     }
-    :last-child{
-        padding: 8px 20px;
-        border-radius: 6px;
-        border: none;
-        // background-color: #accc;
-        color: #FFF;
-        background-color: #4e73df;
-    border-color: #4e73df;
+    :last-child {
+      padding: 8px 20px;
+      border-radius: 6px;
+      border: none;
+      // background-color: #accc;
+      color: #fff;
+      background-color: #4e73df;
+      border-color: #4e73df;
     }
- 
-
   }
-  .default-bene-wrap{
+  .default-bene-wrap {
     margin-top: 10px;
     border: 1px solid rgba(128, 128, 128, 0.308);
     background-color: rgba(214, 93, 56, 0.082);
     border-radius: 4px;
     padding: 5px;
-    p{
-        font-size: 14px;
-        font-weight: 600;
+    p {
+      font-size: 14px;
+      font-weight: 600;
     }
-    .wrap{
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 13.35px;
-        gap: 4px;
-    }
-  }
-
-
-}
-.bene-text{
-    text-align: center;
-    font-size: 14.25px;
-    color: black;
-    font-weight: 400;
-    margin: 10px 0px;
-        @include mix.respond(phone) {
-      font-size: 12.25px;
-      margin: 6px 0px;
+    .wrap {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 13.35px;
+      gap: 4px;
     }
   }
-.error{
-    color: red;
-    font-size: 12px;
-    animation: shake 0.10s ease-in-out; 
-
 }
-
+.bene-text {
+  text-align: center;
+  font-size: 14.25px;
+  color: black;
+  font-weight: 400;
+  margin: 10px 0px;
+  [data-theme="dark"] & {
+    color: #fff;
+  }
+  @include mix.respond(phone) {
+    font-size: 12.25px;
+    margin: 6px 0px;
+  }
+}
+.error {
+  color: red;
+  font-size: 12px;
+  animation: shake 0.1s ease-in-out;
+}
 
 .input-tooltip-wrap {
   position: relative;
@@ -221,8 +238,12 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(3px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
-
-

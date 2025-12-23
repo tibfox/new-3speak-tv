@@ -6,7 +6,7 @@ const ThemeToggle = () => {
   const { theme, toggleTheme } = useAppStore();
 
   return (
-    <button
+    <div
       className="theme-toggle"
       onClick={toggleTheme}
       aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
@@ -17,7 +17,7 @@ const ThemeToggle = () => {
         <FiMoon className="icon moon-icon" />
         <div className={`toggle-thumb ${theme === 'dark' ? 'dark' : ''}`} />
       </div>
-    </button>
+    </div>
   );
 };
 

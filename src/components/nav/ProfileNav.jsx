@@ -13,6 +13,7 @@ import { TiThList } from "react-icons/ti";
 import { IoMdPerson } from 'react-icons/io';
 import { RiWallet3Fill } from 'react-icons/ri';
 import logo from "../../assets/image/3S_logo.svg";
+import logoDark from '../../assets/image/3S_logodark.png';
 import { SiTelegram } from "react-icons/si";
 import { getVotePower } from '../../utils/hiveUtils';
 
@@ -21,7 +22,7 @@ import { getVotePower } from '../../utils/hiveUtils';
 
 function ProfileNav({ isVisible, onclose, toggleAddAccount }) {
   const navigate = useNavigate()
-  const { LogOut, user, switchAccount } = useAppStore();
+  const { LogOut, user, switchAccount, theme } = useAppStore();
   const [showDropdown, setShowDropdown] = useState(false);
   const [votingPower, setVotingPower] = useState(0);
   const [rc, setRc] = useState(0);
@@ -105,14 +106,13 @@ function ProfileNav({ isVisible, onclose, toggleAddAccount }) {
             <TiThList className="icon" /> <span>Playlist</span>
           </Link> */}
           <Link to="/studio" className="wrap" onClick={onclose}>
-
-
             <MdCloudUpload className="icon" /> <span>Upload Video</span>
           </Link>
-          <div className="wrap" onClick={() => { handlewallletNavigation(); onclose() }}>
+
+          <a className="wrap" onClick={() => { handlewallletNavigation(); onclose() }}>
             <RiWallet3Fill className="icon" /> <span>Wallet</span>
-          </div>
-          <div className="wrap dropdown-parent" onClick={() => setShowDropdown(!showDropdown)}>
+          </a>
+          <a className="wrap dropdown-parent" onClick={() => setShowDropdown(!showDropdown)}>
             <FaUserGroup className="icon" /> <span>Switch User</span>
             {showDropdown && accountList.length > 0 && (<div className="dropdown-menu">
               <span className='close-btn' onClick={() => setShowDropdown(!showDropdown)}>x</span>
@@ -123,7 +123,7 @@ function ProfileNav({ isVisible, onclose, toggleAddAccount }) {
               <button className='add-account' onClick={() => { onclose(); toggleAddAccount(); }}>Add Account</button>
 
             </div>)}
-          </div>
+          </a>
           {/* <Link className="wrap">
             <FaLanguage className="icon" /> <span>Language Settings</span>
           </Link> */}
@@ -133,7 +133,8 @@ function ProfileNav({ isVisible, onclose, toggleAddAccount }) {
 
            </div>
            <div className="logo-wrap">
-           <img className="logo" src={logo} alt="" />
+          {theme === "light" ? <img className="logo" src={logo} alt="3Speak Logo" /> :
+            <img className="logo" src={logoDark} alt="3Speak Logo" />}
            </div>
         <div className="support-wrap">
           <a href="https://x.com/3speaktv?utm_source=3speak.tv" className="social-link" target="_blank" rel="noopener noreferrer">

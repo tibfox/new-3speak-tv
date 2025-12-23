@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import './KeyChainLogin.scss';
 import axios from "axios";
 import logo from '../../assets/image/3S_logo.svg';
+import logoDark from '../../assets/image/3S_logodark.png';
 import keychainImg from '../../assets/image/keychain.png';
 import hiveauthImg from '../../../public/images/hiveauth.jpeg';
 import { useNavigate } from 'react-router-dom';
@@ -26,8 +27,9 @@ const APP_META = {
 function KeyChainLogin() {
   const client = axios.create({});
 
-  const { initializeAuth, setActiveUser, switchAccount, clearAccount, LogOut, user } = useAppStore();
+  const { initializeAuth, setActiveUser, switchAccount, clearAccount, LogOut, user, theme } = useAppStore();
 
+console.log(theme)
   const studioEndPoint = "https://studio.3speak.tv";
   const [username, setUsername] = useState('');
   const [accountList, setAccountList] = useState([]);
@@ -268,7 +270,8 @@ const handleSwitchAccount = (user) => {
     <div className="login-container">
       <div className="container-wrapper">
         <div className="main-login-keywrapper">
-          <img src={logo} alt="3Speak Logo" />
+          {theme === "light" ? <img src={logo} alt="3Speak Logo" /> :
+          <img src={logoDark} alt="3Speak Logo" />}
           <span>Login with your username</span>
 
           <input
