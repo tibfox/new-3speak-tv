@@ -3,9 +3,12 @@ import './Watch.scss';
 import PlayVideo from '../components/playVideo/PlayVideo';
 import Recommended from '../components/recommended/Recommended';
 import { useSearchParams } from 'react-router-dom';
-import { GET_RELATED, GET_VIDEO_DETAILS, TRENDING_FEED } from '../graphql/queries';
+import { GET_RELATED, GET_VIDEO_DETAILS, TRENDING_FEED, GET_AUTHOR_VIDEOS } from '../graphql/queries';
 import { useQuery } from '@apollo/client';
 import BarLoader from '../components/Loader/BarLoader';
+
+// Number of author videos to show at the top of recommendations
+const AUTHOR_VIDEOS_COUNT = 4;
 
 // Filter out videos older than December 2023 (old videos may not exist on CDN)
 const MIN_VIDEO_DATE = new Date('2023-12-01T00:00:00.000Z');
@@ -46,40 +49,60 @@ function Watch() {
   // Fetch trending as fallback
   const { data: trendingData, loading: trendingLoading } = useQuery(TRENDING_FEED);
 
+  // Fetch videos from the same author
+  const { data: authorVideosData, loading: authorVideosLoading } = useQuery(GET_AUTHOR_VIDEOS, {
+    variables: { id: author },
+    skip: !author || author === 'unknown',
+  });
+
   // Smart recommendation logic:
-  // 1. Filter out old/deleted videos from related feed
-  // 2. If no valid related videos, use trending feed (also filtered)
-  // 3. Exclude the current video from recommendations
+  // 1. Show up to 4 videos from the same author first
+  // 2. Then show related/recommended videos
+  // 3. Fall back to trending if not enough related videos
+  // 4. Exclude the current video from all lists
   const suggestedVideos = useMemo(() => {
+    const authorItems = authorVideosData?.socialFeed?.items || [];
     const relatedItems = suggestionsData?.relatedFeed?.items || [];
     const trendingItems = trendingData?.trendingFeed?.items || [];
     
-    // Filter valid videos from related feed
-    let recommendations = filterValidVideos(relatedItems);
+    // Track permlinks to avoid duplicates
+    const usedPermlinks = new Set();
+    usedPermlinks.add(permlink); // Exclude current video
     
-    // If related feed has less than 5 valid videos, supplement with trending
+    // 1. Get up to AUTHOR_VIDEOS_COUNT valid videos from the same author
+    const authorVideos = filterValidVideos(authorItems)
+      .filter(v => {
+        if (usedPermlinks.has(v.permlink)) return false;
+        usedPermlinks.add(v.permlink);
+        return true;
+      })
+      .slice(0, AUTHOR_VIDEOS_COUNT);
+    
+    // 2. Get related/recommended videos (excluding author's videos and current)
+    let recommendations = filterValidVideos(relatedItems)
+      .filter(v => {
+        if (usedPermlinks.has(v.permlink)) return false;
+        usedPermlinks.add(v.permlink);
+        return true;
+      });
+    
+    // 3. If not enough related videos, supplement with trending
     if (recommendations.length < 5) {
       const validTrending = filterValidVideos(trendingItems);
-      const existingPermlinks = new Set(recommendations.map(v => v.permlink));
-      
       for (const video of validTrending) {
-        if (!existingPermlinks.has(video.permlink) && recommendations.length < 20) {
+        if (!usedPermlinks.has(video.permlink) && recommendations.length < 16) {
           recommendations.push(video);
-          existingPermlinks.add(video.permlink);
+          usedPermlinks.add(video.permlink);
         }
       }
     }
     
-    // Exclude the current video
-    recommendations = recommendations.filter(
-      v => !(v.author?.username === author && v.permlink === permlink)
-    );
-    
-    return recommendations;
-  }, [suggestionsData, trendingData, author, permlink]);
+    // Combine: author videos first, then recommendations
+    return [...authorVideos, ...recommendations];
+  }, [authorVideosData, suggestionsData, trendingData, author, permlink]);
   
   const isNetworkError = videoError && videoError.networkError;
-  const isLoading = videoLoading || (suggestionsLoading && trendingLoading);
+  const isLoading = videoLoading || (suggestionsLoading && trendingLoading && authorVideosLoading);
 
   if (isLoading) {
     return <BarLoader />;

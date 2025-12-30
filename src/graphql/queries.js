@@ -507,6 +507,32 @@ export const GET_SOCIAL_FEED_BY_CREATOR = gql`
   }
 `;
 
+// Query for author's videos only (with spkvideo filter)
+export const GET_AUTHOR_VIDEOS = gql`
+  query AuthorVideos($id: String) {
+    socialFeed(feedOptions: { byCreator: { _eq: $id } }, spkvideo: { only: true }) {
+      items {
+        ... on HivePost {
+          spkvideo
+          body
+          title
+          stats {
+            num_comments
+            num_votes
+            total_hive_reward
+          }
+          created_at
+          author {
+            username
+          }
+          permlink
+        }
+        permlink
+      }
+    }
+  }
+`;
+
 export const GET_SOCIAL_FEED = gql`
   query MyQuery {
     socialFeed(
