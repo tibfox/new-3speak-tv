@@ -3,6 +3,7 @@ import { Upload, Video } from "lucide-react";
 import "./VideoUploadStep1.scss"
 import {generateVideoThumbnails} from "@rajesh896/video-thumbnails-generator";
 import * as tus from "tus-js-client";
+import { getTusUploadOptions } from "../../utils/tusConfig";
 import {  toast } from 'sonner'
 import Arrow from "./../../../public/images/arrow.png"
 import { useMobileUpload } from '../../context/MobileUploadContext';
@@ -50,7 +51,7 @@ function VideoUploadStep1() {
 
     const upload = new tus.Upload(file, {
       endpoint: tusEndPoint,
-      retryDelays: [0, 3000, 5000, 10000, 20000],
+      ...getTusUploadOptions(),
       metadata: {
         filename: file.name,
         filetype: file.type,

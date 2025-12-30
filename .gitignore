@@ -27,3 +27,4 @@ echo ".env" >> .gitignore
 
 # Internal documentation (not for public repo)
 INTERNAL_*.md
+TUS_SERVER_OPTIMIZATION.md
