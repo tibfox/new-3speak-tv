@@ -35,7 +35,7 @@ const getRenderer = async () => {
   return rendererPromise;
 };
 
-const MarkdownComposer = ({ value, onChange, placeholder = "Write your description here..." }) => {
+const MarkdownComposer = ({ value, onChange, placeholder = "Write your description here...", show }) => {
   const { theme } = useAppStore()
   const textareaRef = useRef(null);
   const [viewMode, setViewMode] = useState('editor'); // 'editor' | 'preview' | 'split'
@@ -356,7 +356,7 @@ const MarkdownComposer = ({ value, onChange, placeholder = "Write your descripti
 
         {/* View mode toggle - right side */}
         <div className="toolbar-spacer" />
-        <div className="toolbar-group view-toggle">
+          <div className={`toolbar-group view-toggle ${show ? 'show' : ''}`}>
           <button 
             type="button" 
             onClick={() => setViewMode('editor')} 

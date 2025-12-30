@@ -9,6 +9,7 @@ import { API_URL_FROM_WEST } from '../utils/config';
 import TextEditor from '../components/studio/TextEditor';
 import { useAppStore } from '../lib/store';
 import * as dhive from '@hiveio/dhive';
+import MarkdownComposer from '../components/studio/MarkdownComposer';
 const client = new dhive.Client(['https://api.hive.blog']);
 
 // Lazy-loaded renderer to avoid Node.js polyfill issues at bundle time
@@ -182,7 +183,8 @@ const handleSubmit = async (e) => {
                 className="form-textarea"
                 rows={8}
               /> */}
-              <TextEditor description={description} setDescription={setDescription} style={{ height: "100%", }} />
+              {/* <TextEditor description={description} setDescription={setDescription} style={{ height: "100%", }} /> */}
+              <MarkdownComposer value={description} onChange={setDescription} placeholder="Write your video description here... Supports markdown formatting!" show={true} />
             </div>
             
             <div className="form-group tap-sp">
