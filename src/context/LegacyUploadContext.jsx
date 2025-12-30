@@ -5,6 +5,7 @@ import { toast } from 'sonner'
 import * as tus from "tus-js-client";
 import axios from "axios";
 import { UPLOAD_TOKEN, UPLOAD_URL } from "../utils/config";
+import { getTusUploadOptions } from "../utils/tusConfig";
 
 const LegacyUploadContext = createContext();
 
@@ -452,10 +453,10 @@ const startTusUpload = async (file) => {
 
     setUploadId(upload_id);
 
-    // 3️⃣ Start TUS upload
+    // 3️⃣ Start TUS upload with optimized settings for high-bandwidth server
     const upload = new tus.Upload(file, {
       endpoint: tus_endpoint,
-      retryDelays: [0, 3000, 5000, 10000, 20000],
+      ...getTusUploadOptions(),
       metadata: {
         upload_id,
         owner: username,

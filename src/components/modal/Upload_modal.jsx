@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import "./Upload_modal.scss";
 import axios from "axios";
 import * as tus from "tus-js-client";
+import { getTusUploadOptions, TUS_THUMBNAIL_CONFIG } from "../../utils/tusConfig";
 import cloud from "../../assets/image/cloud-blue.png";
 import gif_icon from "../../assets/image/icons-gif.gif";
 import thumbnail from "../../assets/image/thumbnail.png";
@@ -64,7 +65,7 @@ function Upload_modal({ setPrevVideoUrl, setPrevVideoFile,  close, isOpen, setVi
 
     const upload = new tus.Upload(file, {
       endpoint: tusEndPoint,
-      retryDelays: [0, 3000, 5000, 10000, 20000],
+      ...getTusUploadOptions(),
       metadata: {
         filename: file.name,
         filetype: file.type,
@@ -92,7 +93,7 @@ function Upload_modal({ setPrevVideoUrl, setPrevVideoFile,  close, isOpen, setVi
 
     const upload = new tus.Upload(file, {
       endpoint: tusEndPoint,
-      retryDelays: [0, 3000, 5000, 10000, 20000],
+      ...TUS_THUMBNAIL_CONFIG,
       metadata: {
         filename: file.name,
         filetype: file.type,

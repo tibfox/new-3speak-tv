@@ -1,6 +1,7 @@
 import  { useEffect, useState } from "react";
 import axios from "axios";
 import * as tus from "tus-js-client";
+import { getTusUploadOptions } from "../../utils/tusConfig";
 // import hive from "@hiveio/hive-js";
 import dhive from "@hiveio/dhive";
 
@@ -179,8 +180,8 @@ function LoginNew() {
     var upload = new tus.Upload(file, {
       // Endpoint is the upload creation URL from your tus server
       endpoint: tusEndPoint,
-      // Retry delays will enable tus-js-client to automatically retry on errors
-      retryDelays: [0, 3000, 5000, 10000, 20000],
+      // Use optimized upload settings for high-bandwidth server
+      ...getTusUploadOptions(),
       // Attach additional meta data about the file for the server
       metadata: {
         filename: file.name,

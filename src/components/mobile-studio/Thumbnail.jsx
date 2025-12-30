@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Upload, Check} from "lucide-react";
 import * as tus from "tus-js-client";
+import { TUS_THUMBNAIL_CONFIG } from "../../utils/tusConfig";
 import "./VideoUploadStep2.scss";
 import {  toast } from 'sonner'
 import { TailChase } from 'ldrs/react'
@@ -89,7 +90,7 @@ const handleThumbnailUpload = (event) => {
 
         const upload = new tus.Upload(fileToUpload, {
             endpoint: tusEndPoint,
-            retryDelays: [0, 3000, 5000, 10000, 20000],
+            ...TUS_THUMBNAIL_CONFIG,
             metadata: {
                 filename: "thumbnail.jpg",
                 filetype: fileToUpload.type,
