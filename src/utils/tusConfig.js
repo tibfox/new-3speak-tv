@@ -4,8 +4,11 @@
  * Optimized for high-bandwidth servers (1.4 Gbps+)
  * These settings maximize upload speed by:
  * - Using larger chunks to reduce HTTP overhead
- * - Enabling parallel chunk uploads
  * - Sending data with the creation request
+ * 
+ * NOTE: parallelUploads is disabled because it requires the TUS
+ * concatenation extension and the server needs to allow the
+ * 'upload-concat' header in CORS. Enable it once server CORS is updated.
  */
 
 // Chunk size in bytes (50MB = optimal for large video files)
@@ -13,9 +16,9 @@
 export const TUS_CHUNK_SIZE = 50 * 1024 * 1024; // 50MB
 
 // Number of parallel chunk uploads
-// More parallel uploads = faster total upload (up to network limit)
-// 3-5 is usually optimal; more can overwhelm slow connections
-export const TUS_PARALLEL_UPLOADS = 3;
+// DISABLED: Server CORS doesn't allow 'upload-concat' header yet
+// TODO: Enable once server CORS is updated to allow 'upload-concat'
+export const TUS_PARALLEL_UPLOADS = 1; // Was: 3
 
 // Retry delays in milliseconds
 // Shorter initial retries for quick recovery from transient errors
@@ -46,7 +49,7 @@ export function getTusUploadOptions(customOptions = {}) {
  */
 export const TUS_THUMBNAIL_CONFIG = {
   chunkSize: 5 * 1024 * 1024, // 5MB (thumbnails are small)
-  parallelUploads: 1,         // No need for parallel uploads
+  parallelUploads: 1,
   retryDelays: TUS_RETRY_DELAYS,
   uploadDataDuringCreation: true,
 };
