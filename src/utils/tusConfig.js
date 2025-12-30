@@ -16,9 +16,8 @@
 export const TUS_CHUNK_SIZE = 50 * 1024 * 1024; // 50MB
 
 // Number of parallel chunk uploads
-// DISABLED: Server CORS doesn't allow 'upload-concat' header yet
-// TODO: Enable once server CORS is updated to allow 'upload-concat'
-export const TUS_PARALLEL_UPLOADS = 1; // Was: 3
+// Uploads multiple chunks simultaneously for faster speeds
+export const TUS_PARALLEL_UPLOADS = 3;
 
 // Retry delays in milliseconds
 // Shorter initial retries for quick recovery from transient errors
