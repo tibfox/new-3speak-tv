@@ -29,6 +29,9 @@
       display: flex;
       align-items: center;
       gap: 2px;
+      &.show{
+        display: none;  
+        }
 
       button {
         display: flex;
@@ -93,9 +96,9 @@
           color: var(--text-inverse);
         }
         &.show{
-          @include mix.respond(phone) {
+          
         display: none;
-      }         
+              
         }
       }
     }
