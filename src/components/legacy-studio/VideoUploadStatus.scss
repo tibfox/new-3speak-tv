@@ -353,6 +353,22 @@
           }
         }
 
+        &.warning {
+          border-left-color: #f59e0b;
+
+          .activity-icon {
+            color: #f59e0b;
+          }
+        }
+
+        &.error {
+          border-left-color: #ef4444;
+
+          .activity-icon {
+            color: #ef4444;
+          }
+        }
+
         .activity-icon {
           flex-shrink: 0;
         }

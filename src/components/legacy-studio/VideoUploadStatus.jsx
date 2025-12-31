@@ -76,6 +76,15 @@ const canLeavePage = statusMessages.some(msg =>
   ].includes(msg.message)
 );
 
+  // Check if finalize succeeded - if so, don't show retry button even if there are polling errors
+  const hasFinalizeSuccess = statusMessages.some(msg => 
+    msg.message.includes("Upload finalized successfully") || 
+    msg.message.includes("finalized successfully")
+  );
+  
+  // Only show retry if there's an error AND finalize hasn't succeeded yet
+  const shouldShowRetry = hasError && !hasFinalizeSuccess;
+
   return (
     <div className="upload-status-container">
       {statusMessages.some(msg => msg.type === "error") && (
@@ -122,7 +131,7 @@ const canLeavePage = statusMessages.some(msg =>
         </div>
       </div>
 
-      {statusMessages.some(msg => msg.type === "error") && (
+      {shouldShowRetry && (
         <div className="retry-btn-wrapper">
           <button onClick={uploadVideoTo3Speak} className="retry-btn">
             Retry Upload
@@ -167,12 +176,15 @@ const canLeavePage = statusMessages.some(msg =>
               msg.message.includes("🎉") ||
               msg.type === "success";
             
+            const isWarning = msg.type === "warning" || msg.message.includes("⚠️");
             const isEncoding = msg.message.includes("⚙️ Encoding");
             
             const itemClass = isSuccess 
               ? "success" 
               : msg.type === "error" 
               ? "error" 
+              : isWarning
+              ? "warning"
               : "info";
 
             return (
