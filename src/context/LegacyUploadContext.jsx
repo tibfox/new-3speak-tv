@@ -141,7 +141,10 @@ export function LegacyUploadProvider({ children }) {
     ]);
   };
 
-
+  // Helper to clear error messages from the status log
+  const clearErrorMessages = () => {
+    setStatusMessages(prev => prev.filter(msg => msg.type !== 'error'));
+  };
 
   const startEncodingPolling = (vid) => {
   setStatusText("Processing video…");
@@ -149,6 +152,9 @@ export function LegacyUploadProvider({ children }) {
 
   let lastEncodingProgress = 0; // Track last progress to avoid duplicate messages
   let hasStartedEncoding = false; // Track if encoding has started
+  let consecutiveErrors = 0; // Track consecutive polling failures
+  const MAX_CONSECUTIVE_ERRORS = 3; // Only show error after 3 consecutive failures
+  let hasShownError = false; // Track if we've shown an error to the user
 
   encodingIntervalRef.current = setInterval(async () => {
     try {
@@ -156,12 +162,26 @@ export function LegacyUploadProvider({ children }) {
         `${UPLOAD_URL}/api/upload/video/${vid}/status`,
         {
           headers: { Authorization: `Bearer ${UPLOAD_TOKEN}` },
+          timeout: 10000, // 10 second timeout
         }
       );
 
       const data = statusResp.data.data.video;
 
       console.log(data)
+
+      // Reset error counter on successful poll
+      if (consecutiveErrors > 0) {
+        console.log(`✅ Polling recovered after ${consecutiveErrors} error(s)`);
+        consecutiveErrors = 0;
+        
+        // If we previously showed an error, show recovery message and clear errors
+        if (hasShownError) {
+          clearErrorMessages();
+          addMessage("✅ Connection restored", "success");
+          hasShownError = false;
+        }
+      }
 
       // ENCODING
       if (data.status === "encoding") {
@@ -213,8 +233,18 @@ export function LegacyUploadProvider({ children }) {
         toast.error("Video processing failed");
       }
     } catch (err) {
-      addMessage("⚠️ Polling error: " + err.message, "error");
-      console.error("Polling error:", err);
+      consecutiveErrors++;
+      console.warn(`Polling error (attempt ${consecutiveErrors}/${MAX_CONSECUTIVE_ERRORS}):`, err.message);
+      
+      // Only show error to user after multiple consecutive failures
+      if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS && !hasShownError) {
+        addMessage("⚠️ Connection unstable - still trying…", "warning");
+        setStatusText("Connection issue - retrying…");
+        hasShownError = true;
+      }
+      
+      // Don't stop polling - let it keep trying
+      // The video is likely still processing fine on the backend
     }
   }, 5000); // Poll every 5 seconds
 };
