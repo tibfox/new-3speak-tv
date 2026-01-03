@@ -13,6 +13,7 @@ import VideoUploadStatus from "./VideoUploadStatus";
 import EditorPreview from "../Editor/EditorPreview";
 import { LineSpinner } from "ldrs/react";
 import checker from "../../../public/images/checker.png"
+import { getSchedulingParams, formatScheduledDateDisplay } from "../../utils/schedulingHelpers";
 
 function Preview() {
   const {
@@ -48,6 +49,8 @@ function Preview() {
     uploading, setUploading,
     completed, setCompleted,
     statusText, setStatusText,
+    isScheduled,
+    scheduleDateTime,
     statusMessages, setStatusMessages,
     encodingIntervalRef,
     setIsUploadLocked,
@@ -322,6 +325,9 @@ const startEncodingPolling = (vid) => {
       }
     }
 
+    // Get scheduling parameters
+    const schedulingParams = getSchedulingParams(isScheduled, scheduleDateTime);
+
     // setIsUploadLocked(true)
       const raw= {
           upload_id: uploadId,
@@ -335,6 +341,7 @@ const startEncodingPolling = (vid) => {
         community,
         declineRewards,
         beneficiaries: parsedBeneficiaries,
+        ...schedulingParams
         }
         console.log(raw)
       const res = await axios.post(
@@ -351,6 +358,7 @@ const startEncodingPolling = (vid) => {
         community,
         declineRewards,
         beneficiaries: parsedBeneficiaries,
+        ...schedulingParams
         },
         {
           headers: {

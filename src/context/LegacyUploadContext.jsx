@@ -50,6 +50,9 @@ export function LegacyUploadProvider({ children }) {
     userWantsToSubmit: false,
     isSubmitting: false,
 
+    // SCHEDULING STATES
+    isScheduled: false,
+    scheduleDateTime: '',
 
     // State for VideoUploadStatus
       uploading: false,
@@ -123,6 +126,12 @@ export function LegacyUploadProvider({ children }) {
   const [userWantsToSubmit, setUserWantsToSubmit] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const autoCheckIntervalRef = useRef(null);
+
+  // ============================================
+  // SCHEDULING STATES
+  // ============================================
+  const [isScheduled, setIsScheduled] = useState(false);
+  const [scheduleDateTime, setScheduleDateTime] = useState('');
 
 
   // Keep ref updated on every uploadStatus change
@@ -658,6 +667,10 @@ const startTusUpload = async (file) => {
         isWaitingForUpload,
         startAutoCheck,
         stopAutoCheck,
+
+        // Scheduling states
+        isScheduled, setIsScheduled,
+        scheduleDateTime, setScheduleDateTime,
 
         startTusUpload,
         uploadVideoTo3Speak,
