@@ -133,13 +133,29 @@ function ProfilePage() {
      VIDEO FEED (INFINITE SCROLL)
   =============================== */
   const fetchVideos = async ({ pageParam = 0 }) => {
-    const url =
-      pageParam === 0
-        ? `https://3speak.tv/apiv2/feeds/@${user}`
-        : `https://3speak.tv/apiv2/feeds/@${user}/more?skip=${pageParam}`;
+    const accessToken = localStorage.getItem("access_token");
+    
+    // Use studio API to get ALL videos including scheduled ones
+    const res = await axios.get('https://studio.3speak.tv/mobile/api/my-videos', {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`
+      },
+      withCredentials: true
+    });
 
-    const res = await axios.get(url);
-    return res.data;
+    // Filter to show only published OR scheduled videos
+    const allVideos = res.data || [];
+    const filteredVideos = allVideos.filter(video => 
+      video.status === 'published' || video.status === 'scheduled'
+    );
+
+    // Handle pagination client-side since API returns all videos
+    const pageSize = 20;
+    const start = pageParam * pageSize;
+    const end = start + pageSize;
+    
+    return filteredVideos.slice(start, end);
   };
 
   const {

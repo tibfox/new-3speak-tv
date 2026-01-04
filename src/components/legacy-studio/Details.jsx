@@ -10,6 +10,7 @@ import { useLegacyUpload } from '../../context/LegacyUploadContext';
 import { LineSpinner } from 'ldrs/react';
 import checker from "../../../public/images/checker.png"
 import MarkdownComposer from '../studio/MarkdownComposer';
+import { getMinMaxDates } from '../../utils/schedulingHelpers';
 
 function Details() {
     const {
@@ -31,7 +32,9 @@ function Details() {
         selectedThumbnail,
         uploadVideoProgress,
         uploadStatus,
-        isUploadLocked
+        isUploadLocked,
+        isScheduled, setIsScheduled,
+        scheduleDateTime, setScheduleDateTime
         // NOTE: Auto-submit values imported but not used in Details
         // The logic happens in Preview page when user clicks "Post Video"
       } = useLegacyUpload();
@@ -182,6 +185,40 @@ function Details() {
             <MdPeopleAlt />
            </div>
           </div>
+        </div>
+
+        <div className="scheduling-wrap">
+          <div className="scheduling-header">
+            <label className="schedule-checkbox-label">
+              <input
+                type="checkbox"
+                checked={isScheduled}
+                onChange={(e) => {
+                  setIsScheduled(e.target.checked);
+                  if (!e.target.checked) {
+                    setScheduleDateTime('');
+                  }
+                }}
+              />
+              <span>📅 Schedule for Later</span>
+            </label>
+            <small>Schedule this post to be published at a specific date and time</small>
+          </div>
+
+          {isScheduled && (
+            <div className="schedule-datetime-group">
+              <label htmlFor="schedule-datetime">Publish Date & Time</label>
+              <input
+                type="datetime-local"
+                id="schedule-datetime"
+                value={scheduleDateTime}
+                onChange={(e) => setScheduleDateTime(e.target.value)}
+                min={getMinMaxDates().minFormatted}
+                max={getMinMaxDates().maxFormatted}
+              />
+              <small>Must be at least 1 hour in future, maximum 90 days</small>
+            </div>
+          )}
         </div>
 
         <div className="submit-btn-wrap">

@@ -60,6 +60,35 @@
           font-size: 13px;
         }
       }
+
+      .scheduled-badge {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: linear-gradient(135deg, rgba(255, 193, 7, 0.95), rgba(255, 152, 0, 0.95));
+        backdrop-filter: blur(8px);
+        color: #fff;
+        padding: 6px 8px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 12px;
+        font-weight: 600;
+        box-shadow: 0 2px 8px rgba(255, 152, 0, 0.4);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        z-index: 2;
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(255, 152, 0, 0.6);
+        }
+
+        @include respond(phone) {
+          padding: 5px 7px;
+          font-size: 11px;
+        }
+      }
     }
     h2{
       padding: 0px 4px;

@@ -1,5 +1,6 @@
 import { IoChevronUpCircleOutline } from "react-icons/io5";
 import { IoEyeOutline } from "react-icons/io5";
+import { IoCalendarOutline } from "react-icons/io5";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { Link, useNavigate } from "react-router-dom";
@@ -115,6 +116,12 @@ function Card3({ videos = [], loading = false, error = null }) {
                     .padStart(2, "0")}
                 </span>
               </div>
+              {/* Scheduled Post Badge - only show while status is 'scheduled' */}
+              {video.publish_type === 'schedule' && video.status === 'scheduled' && (
+                <div className="scheduled-badge" title={`Scheduled for ${dayjs(video.publish_data?.scheduled_at).format('MMM D, YYYY h:mm A')}`}>
+                  <IoCalendarOutline size={18} />
+                </div>
+              )}
             </div>
 
             {/* Title */}
