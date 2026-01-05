@@ -81,17 +81,48 @@ function Details() {
     // ============================================
     // Handle Proceed to Preview
     // ============================================
-    const process = () => {
-        if (!title || !description || !tagsInputValue || !community || !selectedThumbnail) {
-            toast.error("Please fill in all fields, Title, Description and tag!");
-            return;
-        }
-
-        // Always go to preview page first
-        // The upload status check happens there when user clicks "Post Video"
-        navigate("/studio/preview");
-        setStep(4);
+  const process = () => {
+    if (!title?.trim()) {
+      toast.error("Title is required");
+      return;
     }
+
+    if (!description?.trim()) {
+      toast.error("Description is required");
+      return;
+    }
+
+    if (!tagsPreview || tagsPreview.length === 0) {
+      toast.error("Please add at least one tag");
+      return;
+    }
+
+
+    // ✅ All validations passed
+    navigate("/studio/preview");
+    setStep(4);
+  };
+
+
+const handleTagChange = (e) => {
+  const value = e.target.value.toLowerCase();
+
+  const tags = value
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+
+  const uniqueTags = [...new Set(tags)];
+
+  // 🚫 Exceeded limit
+  if (uniqueTags.length > 10) {
+    toast.error("You can add a maximum of 10 tags");
+    return;
+  }
+
+  setTagsInputValue(value);
+  setTagsPreview(uniqueTags);
+};
 
   return (
     <>
@@ -138,7 +169,7 @@ function Details() {
 
         <div className="input-group">
           <label htmlFor="">Tag</label>
-          <input type="text" value={tagsInputValue} onChange={(e) => {setTagsInputValue(e.target.value.toLowerCase()); setTagsPreview(e.target.value.toLowerCase().trim().split(/\s+/));}}  />
+          <input type="text" value={tagsInputValue} onChange={handleTagChange}  />
           
           <div className="wrap">
           <span>Separate multiple tags with </span> <span>Space</span>
@@ -228,7 +259,7 @@ function Details() {
               console.log("description===>", description); 
               process();
             }}
-            disabled={!title || !description || !tagsInputValue}
+            // disabled={!title || !description || !tagsInputValue}
           >
             Proceed
           </button>
