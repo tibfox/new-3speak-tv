@@ -76,4 +76,8 @@ export default defineConfig({
   css: {
     devSourcemap: true,
   },
+
+  preview: {
+    allowedHosts: ["3speak.okinoko.io"],
+  },
 });

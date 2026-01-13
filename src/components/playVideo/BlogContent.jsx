@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { getUersContent } from "../../utils/hiveUtils";
 import "./BlogContent.scss";
+import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 
 // Lazy-loaded renderer to avoid Node.js polyfill issues at bundle time
 let rendererPromise = null;
@@ -24,9 +25,14 @@ const getRenderer = async () => {
   return rendererPromise;
 };
 
+const THRESHOLD_HEIGHT = 100;
+
 const BlogContent = ({ author, permlink, description }) => {
   const [content, setContent] = useState("");
   const [renderedContent, setRenderedContent] = useState("");
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [needsExpansion, setNeedsExpansion] = useState(false);
+  const contentRef = useRef(null);
 
   // Function to remove 3Speak video header from post body
   // Posts typically start with: <center>thumbnail + Watch on 3Speak link</center>---
@@ -72,7 +78,7 @@ const BlogContent = ({ author, permlink, description }) => {
 
     // Pattern 7: Remove leading <hr> (---) that separates header from content
     cleaned = cleaned.replace(/^[\s]*<hr[^>]*\/?>/i, '');
-    
+
     // Also remove <hr> right after we stripped the header
     cleaned = cleaned.replace(/^[\s]*<hr[^>]*\/?>/i, '');
 
@@ -84,7 +90,7 @@ const BlogContent = ({ author, permlink, description }) => {
 
     // Remove any orphaned empty paragraphs
     cleaned = cleaned.replace(/<p[^>]*>[\s]*<\/p>/g, '');
-    
+
     // Remove empty center tags
     cleaned = cleaned.replace(/<center>[\s]*<\/center>/gi, '');
 
@@ -141,11 +147,41 @@ const BlogContent = ({ author, permlink, description }) => {
     }
   }, [content]);
 
+  // Check if content needs expansion after rendering
+  useEffect(() => {
+    if (contentRef.current && renderedContent) {
+      // Use requestAnimationFrame to ensure DOM has updated
+      requestAnimationFrame(() => {
+        const contentHeight = contentRef.current?.scrollHeight || 0;
+        setNeedsExpansion(contentHeight > THRESHOLD_HEIGHT);
+      });
+    }
+  }, [renderedContent]);
+
+  const toggleExpand = () => {
+    setIsExpanded(!isExpanded);
+  };
+
   return (
-    <div
-      className="markdown-view"
-      dangerouslySetInnerHTML={{ __html: renderedContent }}
-    />
+    <div className="blog-content-container">
+      <div
+        className={`content-wrapper ${needsExpansion && !isExpanded ? 'collapsed' : 'expanded'}`}
+        ref={contentRef}
+      >
+        <div
+          className="markdown-view"
+          dangerouslySetInnerHTML={{ __html: renderedContent }}
+        />
+        {needsExpansion && !isExpanded && <div className="fade-overlay" />}
+      </div>
+
+      {needsExpansion && (
+        <div className="expand-toggle" onClick={toggleExpand}>
+          <span>{isExpanded ? "Show less" : "Show more"}</span>
+          {isExpanded ? <FaChevronUp /> : <FaChevronDown />}
+        </div>
+      )}
+    </div>
   );
 };
 

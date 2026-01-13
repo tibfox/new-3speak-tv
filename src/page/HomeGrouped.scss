@@ -29,32 +29,37 @@
 }
 
 .video-row {
-  margin-bottom: 40px;
+  margin-bottom: 25px;
 
   @include respond(phone) {
-    margin-bottom: 30px;
+    margin-bottom: 15px;
   }
 
   .row-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 16px;
+    margin-bottom: 6px;
     padding: 0 10px;
 
+    @include respond(phone) {
+      margin-bottom: 4px;
+      padding: 0 6px;
+    }
+
     h2 {
-      font-size: 20px;
+      font-size: 16px;
       font-weight: 600;
       color: var(--text-primary);
       margin: 0;
 
       @include respond(phone) {
-        font-size: 18px;
+        font-size: 13px;
       }
     }
 
     .view-all {
-      font-size: 14px;
+      font-size: 12px;
       color: var(--accent-primary);
       text-decoration: none;
       font-weight: 500;
@@ -65,7 +70,7 @@
       }
 
       @include respond(phone) {
-        font-size: 13px;
+        font-size: 11px;
       }
     }
   }
@@ -77,7 +82,7 @@
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
-      z-index: 10;
+      z-index: 5;
       background: var(--card-bg);
       border: 1px solid var(--border-light);
       width: 40px;
@@ -131,7 +136,7 @@
   .video-scroll-container-horizontal {
     overflow-x: auto;
     scroll-behavior: smooth;
-    padding: 10px;
+    padding: 6px 10px;
     margin: 0 -10px;
 
     // Hide scrollbar but keep functionality
@@ -143,7 +148,7 @@
     }
 
     @include respond(phone) {
-      padding: 8px;
+      padding: 4px 8px;
     }
 
     .card-container-horizontal {
@@ -156,12 +161,74 @@
         gap: 20px !important;
         grid-column-gap: 20px !important;
         grid-row-gap: 20px !important;
+        margin-top: 0 !important;
 
         .card {
           width: 280px;
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+          &:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+          }
 
           @include respond(phone) {
-            width: 240px;
+            width: 160px;
+
+            // Force 16:9 aspect ratio on thumbnail
+            .img-wrap img {
+              height: 90px; // 160px * 9/16 = 90px
+            }
+
+            // Smaller fonts for mobile cards
+            h2 {
+              font-size: 10px;
+              margin: 3px 0;
+              -webkit-line-clamp: 2;
+            }
+
+            .profile-view-wrap {
+              .profile-wrapper {
+                .profile-img {
+                  width: 18px;
+                  height: 18px;
+                }
+                h2 {
+                  font-size: 9px;
+                }
+              }
+              .view-count {
+                font-size: 9px;
+                span {
+                  font-size: 9px;
+                }
+              }
+            }
+
+            .bottom-action {
+              padding: 4px 3px;
+
+              p {
+                font-size: 9px;
+              }
+
+              .wrap-left {
+                gap: 8px;
+                font-size: 9px;
+
+                .flex-div {
+                  span {
+                    font-size: 9px;
+                  }
+                  .icon {
+                    font-size: 14px;
+                  }
+                  .icon-heart {
+                    font-size: 11px;
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -177,7 +244,7 @@
         width: 280px;
 
         @include respond(phone) {
-          width: 240px;
+          width: 160px;
         }
 
         .video-thumbnail-skeleton {
@@ -185,6 +252,10 @@
           height: 160px;
           margin-bottom: 10px;
           border-radius: 8px;
+
+          @include respond(phone) {
+            height: 90px; // 16:9 ratio for 160px width
+          }
         }
 
         .line-skeleton {
