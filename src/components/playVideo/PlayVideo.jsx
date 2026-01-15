@@ -128,7 +128,7 @@ const calculateVoteValue = async (account, percent) => {
 
 
       const speakWatchData = async ()=>{
-        const res = await axios.get(`https://3speak.tv/apiv2/@${author}/${permlink}`)
+        const res = await axios.get(`https://legacy.3speak.tv/apiv2/@${author}/${permlink}`)
          console.log("3speak--data----", res.data)
          setSpeakData(res.data)
         //  setVideoUrlSelected(res.data.playUrl)

@@ -34,11 +34,11 @@ function TagFeed() {
 
     if (trend) {
       // 🔥 Trending feed
-        url = `https://3speak.tv/apiv2/feeds/community/${tag}/trending?limit=${LIMIT}`;
+        url = `https://legacy.3speak.tv/apiv2/feeds/community/${tag}/trending?limit=${LIMIT}`;
       
     } else {
       // 🆕 New feed
-        url = `https://3speak.tv/apiv2/feeds/community/${tag}/new?limit=${LIMIT}`;
+        url = `https://legacy.3speak.tv/apiv2/feeds/community/${tag}/new?limit=${LIMIT}`;
 
     }
 

@@ -11,8 +11,8 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 const fetchVideos = async ({ pageParam = 1 }) => {
   const LIMIT = 300;
   const res = await axios.get(
-    `https://3speak.tv/apiv2/feeds/firstUploads?page=${pageParam}`
-    // `https://3speak.tv/apiv2/feeds/firstUploads?limit=${LIMIT}`
+    `https://legacy.3speak.tv/apiv2/feeds/firstUploads?page=${pageParam}`
+    // `https://legacy.3speak.tv/apiv2/feeds/firstUploads?limit=${LIMIT}`
   );
   return res.data;
 };

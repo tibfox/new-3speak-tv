@@ -12,11 +12,11 @@ const fetchVideos = async ({ pageParam = 0 }) => {
 
   // On first load, use /feeds/trending
   if (pageParam === 0) {
-    url = `https://3speak.tv/apiv2/feeds/trending?limit=${LIMIT}`;
+    url = `https://legacy.3speak.tv/apiv2/feeds/trending?limit=${LIMIT}`;
   } 
   // On later loads, use /feeds/trending/more with skip
   else {
-    url = `https://3speak.tv/apiv2/feeds/trending/more?skip=${pageParam}`;
+    url = `https://legacy.3speak.tvapiv2/feeds/trending/more?skip=${pageParam}`;
   }
 
   const res = await axios.get(url);

@@ -272,7 +272,7 @@ function ProfilePage() {
               <button
                 className="btn btn-secondary"
                 onClick={() =>
-                  window.open(`https://3speak.tv/rss/${user}.xml`, "_blank")
+                  window.open(`https://legacy.3speak.tv/rss/${user}.xml`, "_blank")
                 }
               >
                 <IoLogoRss />
@@ -284,10 +284,10 @@ function ProfilePage() {
                   navigator.share
                     ? navigator.share({
                         title: user,
-                        url: `https://3speak.tv/user/${user}`,
+                        url: `https://legacy.3speak.tv/user/${user}`,
                       })
                     : window.open(
-                        `https://3speak.tv/user/${user}`,
+                        `https://legacy.3speak.tv/user/${user}`,
                         "_blank"
                       )
                 }

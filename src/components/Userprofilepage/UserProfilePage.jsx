@@ -35,10 +35,10 @@ const fetchVideos = async ({ pageParam = 0 }) => {
   let url;
   if (pageParam === 0) {
     // first 100 videos
-    url = `https://3speak.tv/apiv2/feeds/@${user}`;
+    url = `https://legacy.3speak.tv/apiv2/feeds/@${user}`;
   } else {
     // next batches
-    url = `https://3speak.tv/apiv2/feeds/@${user}/more?skip=${pageParam}`;
+    url = `https://legacy.3speak.tv/apiv2/feeds/@${user}/more?skip=${pageParam}`;
   }
 
   const res = await axios.get(url);
@@ -140,7 +140,7 @@ const {
                     <Quantum size="15" speed="1.75" color="red" />
                   )}
               </button>
-              <button className="btn btn-secondary" onClick={() => window.open(`https://3speak.tv/rss/${user}.xml`, "_blank")}>
+              <button className="btn btn-secondary" onClick={() => window.open(`https://legacy.3speak.tv/rss/${user}.xml`, "_blank")}>
                 <IoLogoRss />
               </button>
                     <button
@@ -150,10 +150,10 @@ const {
                           navigator.share({
                             title: `${user}`,
                             text: `Follow ${user} on 3Speak`,
-                            url: `https://3speak.tv/user/${user}`,
+                            url: `https://legacy.3speak.tv/user/${user}`,
                           });
                         } else {
-                          window.open(`https://3speak.tv/user/${user}`, "_blank");
+                          window.open(`https://legacy.3speak.tv/user/${user}`, "_blank");
                         }
                       }}
                     >

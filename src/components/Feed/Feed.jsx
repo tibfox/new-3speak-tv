@@ -23,10 +23,10 @@ const fetchVideos = async ({ pageParam = 0 }) => {
 
   if (pageParam === 0) {
     // 🧩 First load
-    url = `https://3speak.tv/apiv2/feeds/home?page=${pageParam}`;
+    url = `https://legacy.3speak.tv/apiv2/feeds/home?page=${pageParam}`;
   } else {
     // 🧩 Only two "more" pages are available: 64 and 128
-    url = `https://3speak.tv/api/feed/more?skip=${pageParam}`;
+    url = `https://legacy.3speak.tv/api/feed/more?skip=${pageParam}`;
   }
 
   const res = await axios.get(url);
