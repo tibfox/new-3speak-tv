@@ -5,7 +5,7 @@ import logo from '../../assets/image/3S_logo.svg';
 import logoDark from '../../assets/image/3S_logodark.png';
 import keychainImg from '../../assets/image/keychain.png';
 import hiveauthImg from '../../../public/images/hiveauth.jpeg';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { LOCAL_STORAGE_ACCESS_TOKEN_KEY, LOCAL_STORAGE_USER_ID_KEY } from '../../hooks/localStorageKeys';
 import { useAppStore } from '../../lib/store';
 import { LuLogOut } from 'react-icons/lu';
@@ -37,6 +37,7 @@ console.log(theme)
   const [isWaitingHiveAuth, setIsWaitingHiveAuth] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const [hasKeychain, setHasKeychain] = useState(false);
   const isMobile = window.innerWidth <= 768;
 
@@ -124,7 +125,9 @@ console.log(hasKeychain)
       localStorage.setItem(LOCAL_STORAGE_ACCESS_TOKEN_KEY, decodedMessage);
       localStorage.setItem(LOCAL_STORAGE_USER_ID_KEY, username);
       initializeAuth();
-      navigate("/");
+      // navigate back to the route user visited before opening login
+      const pre = (location.state && location.state.from && location.state.from.pathname) || sessionStorage.getItem('preLoginPath') || '/';
+      navigate(pre);
       toast.success("Login successful!");
 
 
@@ -172,7 +175,9 @@ const handleLoginWithHiveAuth = async () => {
   
         if (login.error === "Already logged in") {
           aioha.switchUser(username);
-          navigate("/");
+          // after switching user, navigate back to previous route
+          const preSwitch = (location.state && location.state.from && location.state.from.pathname) || sessionStorage.getItem('preLoginPath') || '/';
+          navigate(preSwitch);
           signedResult = await aioha.signMessage(`${proof}`, KeyTypes.Posting);
           if (signedResult.error) {
             throw new Error("Signing Error: " + signedResult.error);
@@ -204,7 +209,8 @@ const handleLoginWithHiveAuth = async () => {
         localStorage.setItem(LOCAL_STORAGE_ACCESS_TOKEN_KEY, decodedMessage);
         localStorage.setItem(LOCAL_STORAGE_USER_ID_KEY, username);
         initializeAuth();
-        navigate("/");
+        const preAuth = (location.state && location.state.from && location.state.from.pathname) || sessionStorage.getItem('preLoginPath') || '/';
+        navigate(preAuth);
         toast.success("Login successful!");
   
       } catch (err) {
@@ -282,14 +288,18 @@ const handleSwitchAccount = (user) => {
           />
 
           <div className="wrap-btn">
+            {isMobile && (
               <div className="wrap keychain-down" onClick={handleLoginWithHiveAuth}>
-              <img src={hiveauthImg} alt="HiveAuth" />
-              <span>HiveAuth</span>
-            </div>
-            {hasKeychain &&<div className="wrap keychain-down" onClick={logMe}>
-              <img src={keychainImg} alt="keychain" />
-              <span>Keychain</span>
-            </div>}
+                <img src={hiveauthImg} alt="HiveAuth" />
+                <span>HiveAuth</span>
+              </div>
+            )}
+            {hasKeychain && (
+              <div className="wrap keychain-down" onClick={logMe}>
+                <img src={keychainImg} alt="keychain" />
+                <span>Keychain</span>
+              </div>
+            )}
 
               {/* <div className="wrap keychain-down" onClick={login3SpeakEmail}>
               <img src={hiveauthImg} alt="email" />

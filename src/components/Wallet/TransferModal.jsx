@@ -119,7 +119,7 @@ function TransferModal({showModal, selectedCoin, balances, fetchBalances}) {
                   type="text"
                   value={memo}
                   onChange={(e) => setMemo(e.target.value)}
-                  placeholder="Enter Hive username"
+                  placeholder="Enter Memo"
                 />
               </div>
               <div className="button-group">

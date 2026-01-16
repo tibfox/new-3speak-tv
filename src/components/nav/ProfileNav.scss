@@ -209,8 +209,8 @@
     .close-btn {
       position: absolute;
       // padding: 2px 0px;
-      top: 2px;
-      right: 20px;
+      top: -2px;
+      right: 1px;
       cursor: pointer;
       font-size: 16px;
     }
@@ -238,7 +238,7 @@
       }
     }
     button {
-      margin: 0px 16px;
+      margin: 5px 16px;
       background: #e32933;
       color: #fff;
       border: none;

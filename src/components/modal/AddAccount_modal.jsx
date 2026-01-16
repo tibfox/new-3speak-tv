@@ -7,7 +7,7 @@ import logo from '../../assets/image/3S_logo.svg';
 import logoDark from '../../assets/image/3S_logodark.png';
 import keychainImg from '../../assets/image/keychain.png';
 import hiveauthImg from '../../../public/images/hiveauth.jpeg';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { LOCAL_STORAGE_ACCESS_TOKEN_KEY, LOCAL_STORAGE_USER_ID_KEY } from '../../hooks/localStorageKeys';
 import { useAppStore } from '../../lib/store';
 import { LuLogOut } from 'react-icons/lu';
@@ -25,6 +25,7 @@ const APP_META = {
 };
 
 function AddAccount_modal({ isOpen, close}) {
+    const location = useLocation();
     const client = axios.create({});
     const { initializeAuth, switchAccount, clearAccount, theme } = useAppStore();
     const studioEndPoint = "https://studio.3speak.tv";
@@ -104,7 +105,9 @@ function AddAccount_modal({ isOpen, close}) {
       localStorage.setItem(LOCAL_STORAGE_ACCESS_TOKEN_KEY, decodedMessage);
       localStorage.setItem(LOCAL_STORAGE_USER_ID_KEY, username);
       initializeAuth();
-      navigate("/");
+      // navigate("/");
+      const preAuth = (location.state && location.state.from && location.state.from.pathname) || sessionStorage.getItem('preLoginPath') || '/';
+      navigate(preAuth);
       close()
       toast.success("Login successful!");
 

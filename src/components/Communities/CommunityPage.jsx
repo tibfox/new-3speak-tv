@@ -117,9 +117,9 @@ function CommunityPage() {
 
       {/* Trend / New Switch */}
       <div className="search-tren-wrapper">
-        <div className="search-wrapper">
+        {/* <div className="search-wrapper">
           <input type="text" placeholder="Search communities..." />
-        </div>
+        </div> */}
         <div className="trend-btn-wrap">
           <span
             className={trend ? "active" : ""}

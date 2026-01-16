@@ -36,6 +36,7 @@ import axios from "axios";
 
 const PlayVideo = ({ videoDetails, author, permlink }) => {
   const { user, authenticated } = useAppStore();
+  const [hasKeychain, setHasKeychain] = useState(false);
   const [commentData, setCommentData] = useState("");
   const [openTooltip, setOpenToolTip] = useState(false);
   const [tooltipVoters, setTooltipVoters] = useState([]);
@@ -152,6 +153,19 @@ const calculateVoteValue = async (account, percent) => {
       fetchAccountData();
       speakWatchData()
     }, [ ]);
+
+    // Detect Hive Keychain extension presence (poll briefly to catch late installs)
+    useEffect(() => {
+      const check = () => setHasKeychain(typeof window !== 'undefined' && !!window.hive_keychain);
+      check();
+      const id = setInterval(check, 1000);
+      // stop polling after 10s
+      const stopId = setTimeout(() => clearInterval(id), 10000);
+      return () => {
+        clearInterval(id);
+        clearTimeout(stopId);
+      };
+    }, []);
 
   useEffect(() => {
     if (!accountData) return;
@@ -447,7 +461,9 @@ const handleProfileNavigate = (user) => {
               <span>${videoDetails?.stats?.total_hive_reward?.toFixed(2) ?? '0.00'}</span>
             </span>
             {/* <span>Reply</span> */}
-            <button className="tip-btn" onClick={() => setIsTipModalOpen(true)}>Tip</button>
+            {authenticated && hasKeychain && (
+              <button className="tip-btn" onClick={() => setIsTipModalOpen(true)}>Tip</button>
+            )}
             <UpvoteTooltip
               showTooltip={showTooltip}
               setShowTooltip={setShowTooltip}

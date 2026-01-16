@@ -132,9 +132,10 @@ $indigo-500: #6366f1;
             [data-theme="dark"] & {
               color: var(--text-primary);
               background-color: #1a1a1a;
+              border: 1px solid #1e293b;
+
             }
-            border: 1px solid #1e293b;
-            background: rgba(15, 23, 42, 0.8);
+
             @include mix.respond(phone) {
               padding: 0.4rem 1rem;
               font-size: 0.675rem;
@@ -242,6 +243,10 @@ $indigo-500: #6366f1;
             border: 1px solid $gray-300;
             border-radius: 0.5rem;
             box-sizing: border-box;
+            [data-theme="dark"] & {
+              border: 1px solid grey;
+              color: var(--text-primary);
+            }
 
             @include mix.respond(phone) {
               font-size: 16px;

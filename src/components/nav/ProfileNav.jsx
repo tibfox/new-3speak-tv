@@ -5,7 +5,7 @@ import { useAppStore } from '../../lib/store';
 import { useGetMyQuery } from '../../hooks/getUserDetails';
 import { MdCloudUpload, MdKeyboardArrowDown, MdOutlineKeyboardArrowUp } from "react-icons/md";
 import { ImPower } from "react-icons/im";
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { FaDiscord, FaLanguage } from 'react-icons/fa';
 import { IoPower } from 'react-icons/io5';
 import { FaCheckToSlot, FaJxl, FaSquareXTwitter, FaUserGroup } from 'react-icons/fa6';
@@ -21,6 +21,7 @@ import { getVotePower } from '../../utils/hiveUtils';
 
 
 function ProfileNav({ isVisible, onclose, toggleAddAccount }) {
+  const location = useLocation();
   const navigate = useNavigate()
   const { LogOut, user, switchAccount, theme } = useAppStore();
   const [showDropdown, setShowDropdown] = useState(false);
@@ -45,6 +46,8 @@ function ProfileNav({ isVisible, onclose, toggleAddAccount }) {
     switchAccount(user)
     onclose()
     navigate("/")
+    const preAuth = (location.state && location.state.from && location.state.from.pathname) || sessionStorage.getItem('preLoginPath') || '/';
+    navigate(preAuth);
 
   }
 
@@ -137,10 +140,10 @@ function ProfileNav({ isVisible, onclose, toggleAddAccount }) {
             <img className="logo" src={logoDark} alt="3Speak Logo" />}
            </div>
         <div className="support-wrap">
-          <a href="https://x.com/3speaktv?utm_source=3speak.tv" className="social-link" target="_blank" rel="noopener noreferrer">
+          <a href="https://discord.com/invite/NSFS2VGj83" className="social-link" target="_blank" rel="noopener noreferrer">
             <FaDiscord size={30} />
           </a>
-          <a href="https://discord.com/invite/NSFS2VGj83" className="social-link" target="_blank" rel="noopener noreferrer">
+          <a href="https://x.com/3speaktv?utm_source=3speak.tv " className="social-link" target="_blank" rel="noopener noreferrer">
             <FaSquareXTwitter size={30} />
           </a>
           <a href="https://t.me/threespeak?utm_source=3speak.tv" className="social-link" target="_blank" rel="noopener noreferrer">

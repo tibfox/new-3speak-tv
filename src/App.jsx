@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import "./App.css";
 // import Home from './page/Home'
 // import Treanding from './page/Treanding'
@@ -54,6 +54,7 @@ import HiveImageUploader from "./page/HiveImageUploader";
 import { LegacyUploadProvider } from "./context/LegacyUploadContext";
 
 function App() {
+  const location = useLocation();
   const { initializeAuth, authenticated, LogOut } = useAppStore();
   const [sidebar, setSideBar] = useState(true);
   const [profileNavVisible, setProfileNavVisible] = useState(false);
@@ -70,6 +71,20 @@ function App() {
     tokenVaildation()
 
   }, []);
+
+  // Persist the last visited non-login route so the app can return
+  // users to the same page after they sign in.
+  useEffect(() => {
+    if (!location) return;
+    const path = `${location.pathname}${location.search || ''}`;
+    // don't overwrite when on login or auth callback routes
+    if (path.startsWith('/login') || path.startsWith('/auth/callback') || path.startsWith('/newlogin')) return;
+    try {
+      sessionStorage.setItem('preLoginPath', path);
+    } catch (err) {
+      // ignore storage errors
+    }
+  }, [location]);
 
 
 
