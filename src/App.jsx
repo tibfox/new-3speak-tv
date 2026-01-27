@@ -59,11 +59,15 @@ import { KeyTypes } from "@aioha/aioha";
 import '@aioha/react-ui/dist/build.css';
 import { LOCAL_STORAGE_ACCESS_TOKEN_KEY, LOCAL_STORAGE_USER_ID_KEY } from "./hooks/localStorageKeys";
 import axios from "axios";
+import { TVModeProvider, useTVMode } from "./context/TVModeContext";
+import ExitDialog from "./components/tv/ExitDialog";
 
-function App() {
+// Inner component that uses TV mode context
+function AppContent() {
   const location = useLocation();
   const { initializeAuth, authenticated, LogOut, switchAccount, setUser, user: appUser } = useAppStore();
   const { aioha, user: aiohaUser } = useAioha();
+  const { isTVMode, tvFocusArea, tvNavFocusIndex, tvSidebarFocusIndex, setTvNavFocusIndex, setTvSidebarFocusIndex, tvSidebarVisible, setTvSidebarVisible, sidebarItemCount } = useTVMode();
   const [sidebar, setSideBar] = useState(true);
   const [profileNavVisible, setProfileNavVisible] = useState(false);
 
@@ -350,10 +354,31 @@ function App() {
     <LegacyUploadProvider>
     <div onClick={()=> {setGlobalCloseRender(true)}}>
       <Toaster richColors position="top-right" />
-      <Nav setSideBar={setSideBar} toggleProfileNav={toggleProfileNav} globalClose={globalCloseRender} setGlobalClose={setGlobalCloseRender} openLoginModal={openLoginModal} />
+      {/* Hide Nav in TV mode - navigation is in sidebar */}
+      {!isTVMode && (
+        <Nav
+          setSideBar={setSideBar}
+          toggleProfileNav={toggleProfileNav}
+          globalClose={globalCloseRender}
+          setGlobalClose={setGlobalCloseRender}
+          openLoginModal={openLoginModal}
+          tvNavFocusIndex={tvFocusArea === 'nav' ? tvNavFocusIndex : -1}
+          setTvNavFocusIndex={setTvNavFocusIndex}
+        />
+      )}
       <div>
-        <Sidebar sidebar={sidebar} />
-        <div className={`container ${sidebar ? "" : "large-container"}`}>
+        {/* Show Sidebar - hidden by default in TV mode, shown when navigating left */}
+        <Sidebar
+          sidebar={isTVMode ? tvSidebarVisible : sidebar}
+          tvSidebarFocusIndex={tvFocusArea === 'sidebar' ? tvSidebarFocusIndex : -1}
+          setTvSidebarFocusIndex={setTvSidebarFocusIndex}
+          onTvSidebarAction={(action) => {
+            if (action === 'logout') {
+              LogOut();
+            }
+          }}
+        />
+        <div className={`container ${sidebar ? "" : "large-container"}${isTVMode && tvSidebarVisible ? ' tv-sidebar-open' : ''}`}>
           <ScrollToTop />
           {/* <Toaster richColors position="top-right" /> */}
           <Routes>
@@ -391,8 +416,12 @@ function App() {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
-        <ProfileNav isVisible={profileNavVisible} onclose={toggleProfileNav} toggleAddAccount={toggleAddAccount} openLoginModal={openLoginModal} />
-        {toggle && <AddAccount_modal close={toggleAddAccount} isOpen={toggle} /> }
+        {!isTVMode && (
+          <>
+            <ProfileNav isVisible={profileNavVisible} onclose={toggleProfileNav} toggleAddAccount={toggleAddAccount} openLoginModal={openLoginModal} />
+            {toggle && <AddAccount_modal close={toggleAddAccount} isOpen={toggle} /> }
+          </>
+        )}
         <AiohaModal
           displayed={loginModalOpen}
           onLogin={handleAiohaLogin}
@@ -404,10 +433,21 @@ function App() {
           }}
         />
       </div>
+      {/* Exit confirmation dialog for TV mode */}
+      {isTVMode && <ExitDialog />}
     </div>
 
     </LegacyUploadProvider>
     </HiveAuthProvider>
+  );
+}
+
+// Main App component wraps with TVModeProvider
+function App() {
+  return (
+    <TVModeProvider>
+      <AppContent />
+    </TVModeProvider>
   );
 }
 

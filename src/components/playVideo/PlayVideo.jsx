@@ -4,7 +4,7 @@ import { FaEye } from "react-icons/fa";
 import { LuTimer } from "react-icons/lu";
 import { BiLike } from "react-icons/bi";
 import { GiTwoCoins } from "react-icons/gi";
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { useQuery } from "@apollo/client";
 import {
   GET_PROFILE,
@@ -22,21 +22,24 @@ import { ImSpinner9 } from "react-icons/im";
 import { useNavigate } from "react-router-dom";
 import BarLoader from "../Loader/BarLoader";
 import TipModal from "../../components/tip-reward/TipModal";
+import { useTVMode } from "../../context/TVModeContext";
 import { toast } from 'sonner';
 import { TailChase } from 'ldrs/react';
 import 'ldrs/react/TailChase.css';
 import { getFollowers } from "../../hive-api/api";
 import UpvoteTooltip from "../tooltip/UpvoteTooltip";
+import TVUpvoteOverlay from "../tv/TVUpvoteOverlay";
 import axios from "axios";
 import { FEED_URL } from '../../utils/config';
 import { followWithAioha, isLoggedIn } from "../../hive-api/aioha";
 
 dayjs.extend(relativeTime);
 
-const PlayVideo = ({ videoDetails, author, permlink }) => {
+const PlayVideo = ({ videoDetails, author, permlink, forceAutoplay = false }) => {
   const { user, authenticated } = useAppStore();
+  const { isTVMode } = useTVMode();
   const navigate = useNavigate();
-  
+
   // State
   const [openTooltip, setOpenToolTip] = useState(false);
   const [tooltipVoters, setTooltipVoters] = useState([]);
@@ -51,6 +54,83 @@ const PlayVideo = ({ videoDetails, author, permlink }) => {
   const [weight, setWeight] = useState(100);
   const [view, setView] = useState(0);
   const [speakData, setSpeakData] = useState(null);
+  const [tvUpvoteOverlayOpen, setTvUpvoteOverlayOpen] = useState(false);
+  const [tvVoteLoading, setTvVoteLoading] = useState(false);
+  const accessToken = localStorage.getItem("access_token");
+
+  // TV Mode state for publisher section navigation
+  // -1 = not focused, 0 = author name, 1 = follow button
+  const [tvPublisherFocusIndex, setTvPublisherFocusIndex] = useState(-1);
+  const authorNameRef = useRef(null);
+  const followBtnRef = useRef(null);
+
+  // Enter TV publisher mode
+  const enterTvPublisherMode = useCallback(() => {
+    if (isTVMode) {
+      setTvPublisherFocusIndex(0); // Start at author name
+    }
+  }, [isTVMode]);
+
+  // Handle keyboard navigation within publisher section
+  useEffect(() => {
+    if (!isTVMode || tvPublisherFocusIndex < 0) return;
+
+    const handleKeyDown = (event) => {
+      switch (event.keyCode) {
+        case 37: // Left arrow
+          if (tvPublisherFocusIndex === 1) {
+            // Move from follow button to author name
+            setTvPublisherFocusIndex(0);
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          break;
+        case 39: // Right arrow
+          if (tvPublisherFocusIndex === 0 && author !== user) {
+            // Move from author name to follow button (only if follow button exists)
+            setTvPublisherFocusIndex(1);
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          break;
+        case 38: // Up arrow
+          // Exit publisher focus mode
+          setTvPublisherFocusIndex(-1);
+          // Let Watch.jsx handle navigation
+          break;
+        case 40: // Down arrow
+          // Exit publisher focus mode
+          setTvPublisherFocusIndex(-1);
+          // Let Watch.jsx handle navigation
+          break;
+        case 13: // Enter
+          if (tvPublisherFocusIndex === 0) {
+            // Author name - navigate to profile
+            handleProfileNavigate(videoDetails?.author?.id);
+            event.preventDefault();
+            event.stopPropagation();
+          } else if (tvPublisherFocusIndex === 1) {
+            // Follow button
+            followUser(author);
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          break;
+        case 10009: // Samsung TV Back
+        case 27: // Escape
+          setTvPublisherFocusIndex(-1);
+          event.preventDefault();
+          event.stopPropagation();
+          break;
+        default:
+          break;
+      }
+    };
+
+    // Use capture phase to intercept events before Watch.jsx
+    document.addEventListener('keydown', handleKeyDown, true);
+    return () => document.removeEventListener('keydown', handleKeyDown, true);
+  }, [isTVMode, tvPublisherFocusIndex, author, user, videoDetails]);
 
   // Memoized format function
   const formatRelativeTime = useCallback((date) => {
@@ -264,6 +344,60 @@ const PlayVideo = ({ videoDetails, author, permlink }) => {
     }
   };
 
+  // TV Mode vote handler
+  const handleTvVote = async () => {
+    if (!authenticated) {
+      toast.error('Login to complete this operation');
+      return;
+    }
+
+    setTvVoteLoading(true);
+    const voteWeight = Math.round(weight * 100);
+
+    try {
+      const data = await getUersContent(author, permlink);
+      if (!data) {
+        toast.error('Could not fetch post data');
+        setTvVoteLoading(false);
+        return;
+      }
+      const existingVote = data.active_votes?.find((vote) => vote.voter === user);
+
+      if (existingVote) {
+        if (existingVote.percent === voteWeight) {
+          toast.info('Previous value is not acceptable. Vote with a different value.');
+          setTvVoteLoading(false);
+          return;
+        }
+      }
+
+      const response = await axios.post('https://studio.3speak.tv/mobile/vote', {
+        author,
+        permlink,
+        weight: voteWeight
+      }, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (!existingVote) {
+        setOptimisticVoteCount((prevCount) => prevCount + 1);
+      }
+
+      toast.success('Vote successful');
+      setIsVoted(true);
+      setTvVoteLoading(false);
+      setTvUpvoteOverlayOpen(false);
+    } catch (err) {
+      console.error('Vote failed:', err);
+      toast.error('Vote failed, please try again');
+      setTvVoteLoading(false);
+      setTvUpvoteOverlayOpen(false);
+    }
+  };
+
   return (
     <>
       <div className="play-video">
@@ -271,7 +405,8 @@ const PlayVideo = ({ videoDetails, author, permlink }) => {
           {(author && permlink) ? (
             <div className="video-iframe-wrapper">
               <iframe
-                src={`https://play.3speak.tv/watch?v=${author}/${permlink}&layout=desktop&mode=iframe`}
+                key={forceAutoplay ? 'autoplay' : 'normal'}
+                src={`${import.meta.env.VITE_PLAYER_URL || 'https://play.3speak.tv'}/watch?v=${author}/${permlink}&layout=desktop&mode=iframe&debug=1`}
                 style={{
                   position: "absolute",
                   top: 0,
@@ -284,6 +419,7 @@ const PlayVideo = ({ videoDetails, author, permlink }) => {
                 frameBorder="0"
                 scrolling="no"
                 allowFullScreen
+                allow="autoplay; encrypted-media; fullscreen"
               />
             </div>
           ) : (
@@ -299,12 +435,12 @@ const PlayVideo = ({ videoDetails, author, permlink }) => {
               <span key={index} onClick={() => handleSelectTag(tag)}>{tag}</span>
             ))}
           </div>
-          
+
           {community_id && (<div className="community-title-wrap" onClick={() => handleCommunityNavigate(community_id)}>
             <MdPeople />
             <span>{comunity_name}</span>
           </div>)}
-          
+
           <div className="play-video-info">
             <div className="wrap-left">
               <div className="wrap">
@@ -316,22 +452,32 @@ const PlayVideo = ({ videoDetails, author, permlink }) => {
                 <span>{formatRelativeTime(videoDetails?.created_at)}</span>
               </div>
             </div>
-            
-            <div className="wrap-right">
+
+            <div
+              className="wrap-right"
+              data-tv-main-focusable="true"
+              data-tv-focusable-type="upvote"
+              onClick={() => {
+                // In TV mode, open the TV upvote overlay instead of the tooltip
+                if (isTVMode) {
+                  setTvUpvoteOverlayOpen(true);
+                }
+              }}
+            >
               <span className="wrap">
                 {isLoading ? (
                   <div className="loader-circle">
                     <TailChase className="loader-circle" size="15" speed="1.5" color="red" />
                   </div>
                 ) : (
-                  <BiLike 
-                    className={isVoted ? "icon-red" : "icon"} 
-                    onClick={toggleTooltip} 
+                  <BiLike
+                    className={isVoted ? "icon-red" : "icon"}
+                    onClick={(e) => { e.stopPropagation(); toggleTooltip(); }}
                   />
                 )}
-                <div 
-                  className="amount" 
-                  onMouseEnter={() => setOpenToolTip(true)} 
+                <div
+                  className="amount"
+                  onMouseEnter={() => setOpenToolTip(true)}
                   onMouseLeave={() => setOpenToolTip(false)}
                 >
                   {optimisticVoteCount}
@@ -368,17 +514,30 @@ const PlayVideo = ({ videoDetails, author, permlink }) => {
         </div>
 
         <div className="big-mid-wrap"></div>
-        
-        <div className="publisher">
+
+        <div
+          className={`publisher${tvPublisherFocusIndex >= 0 ? ' tv-publisher-active' : ''}`}
+          data-tv-main-focusable="true"
+          data-tv-focusable-type="publisher"
+          onClick={enterTvPublisherMode}
+        >
           <img src={profile?.images?.avatar} alt="" />
           <div>
-            <p onClick={() => handleProfileNavigate(videoDetails?.author?.id)}>
+            <p
+              ref={authorNameRef}
+              className={tvPublisherFocusIndex === 0 ? 'tv-element-focused' : ''}
+              onClick={() => handleProfileNavigate(videoDetails?.author?.id)}
+            >
               {videoDetails?.author?.id}
             </p>
             <span>{followData?.follower_count} Followers</span>
           </div>
           {author !== user && (
-            <button onClick={() => followUser(author)}>
+            <button
+              ref={followBtnRef}
+              className={tvPublisherFocusIndex === 1 ? 'tv-element-focused' : ''}
+              onClick={() => followUser(author)}
+            >
               Follow
             </button>
           )}
@@ -397,7 +556,7 @@ const PlayVideo = ({ videoDetails, author, permlink }) => {
           setIsVoted={setIsVoted}
         />
       </div>
-      
+
       {isTipModalOpen && (
         <TipModal
           recipient={author}
@@ -405,6 +564,15 @@ const PlayVideo = ({ videoDetails, author, permlink }) => {
           onClose={() => setIsTipModalOpen(false)}
         />
       )}
+      <TVUpvoteOverlay
+        isOpen={isTVMode && tvUpvoteOverlayOpen}
+        onClose={() => setTvUpvoteOverlayOpen(false)}
+        weight={weight}
+        setWeight={setWeight}
+        voteValue={voteValue}
+        onVote={handleTvVote}
+        isLoading={tvVoteLoading}
+      />
     </>
   );
 };
@@ -433,6 +601,7 @@ PlayVideo.propTypes = {
   }),
   author: PropTypes.string.isRequired,
   permlink: PropTypes.string.isRequired,
+  forceAutoplay: PropTypes.bool,
 };
 
 export default PlayVideo;

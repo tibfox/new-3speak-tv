@@ -8,4 +8,78 @@
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
+    position: relative;
+}
+
+// TV Mode Play Prompt Overlay
+.tv-play-prompt-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    cursor: pointer;
+
+    .tv-play-prompt {
+        text-align: center;
+        color: white;
+        animation: pulse 2s ease-in-out infinite;
+
+        .tv-play-icon {
+            font-size: 120px;
+            color: #e94560;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 20px rgba(233, 69, 96, 0.5));
+        }
+
+        h2 {
+            font-size: 48px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: white;
+        }
+
+        p {
+            font-size: 24px;
+            color: #aaa;
+        }
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 0.9;
+    }
+}
+
+// TV Mode Watch Page Styles
+.tv-mode-watch {
+    .tv-mode-video-area {
+        max-height: calc(100vh - 80px);
+        overflow-y: auto;
+        scroll-behavior: smooth;
+
+        // Hide scrollbar but keep functionality
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        &::-webkit-scrollbar {
+            display: none;
+        }
+    }
+
+    // Remove the whole-area focus styling since we now focus on the iframe
+    .tv-area-focused {
+        outline: none;
+        box-shadow: none;
+    }
 }

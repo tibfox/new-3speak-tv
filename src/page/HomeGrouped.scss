@@ -280,3 +280,106 @@
   }
 
 }
+
+// TV Mode Refresh Indicator
+.tv-refresh-indicator {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(145deg, #1a1a2e, #16213e);
+  border: 2px solid #e94560;
+  border-radius: 12px;
+  padding: 12px 32px;
+  z-index: 9999;
+  box-shadow: 0 0 30px rgba(233, 69, 96, 0.4);
+  animation: pulseRefresh 1s ease-in-out infinite;
+
+  span {
+    color: white;
+    font-size: 18px;
+    font-weight: 500;
+  }
+}
+
+@keyframes pulseRefresh {
+  0%, 100% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: translateX(-50%) scale(1.02);
+  }
+}
+
+// TV Mode Exit Confirmation Dialog
+.tv-exit-confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+
+  .tv-exit-confirm-dialog {
+    background: #1a1a2e;
+    border-radius: 16px;
+    padding: 48px 64px;
+    text-align: center;
+    border: 2px solid #333;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+
+    h2 {
+      font-size: 42px;
+      font-weight: 600;
+      color: white;
+      margin: 0 0 16px 0;
+    }
+
+    p {
+      font-size: 24px;
+      color: #aaa;
+      margin: 0 0 40px 0;
+    }
+
+    .tv-exit-confirm-buttons {
+      display: flex;
+      gap: 32px;
+      justify-content: center;
+
+      .tv-exit-btn {
+        padding: 16px 48px;
+        font-size: 24px;
+        font-weight: 500;
+        border-radius: 8px;
+        border: 2px solid #444;
+        background: #2a2a3e;
+        color: white;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &.tv-focused {
+          border-color: #e94560;
+          background: #e94560;
+          transform: scale(1.05);
+          box-shadow: 0 0 20px rgba(233, 69, 96, 0.5);
+        }
+
+        &:first-child.tv-focused {
+          background: #e94560;
+        }
+
+        &:last-child.tv-focused {
+          background: #4CAF50;
+          border-color: #4CAF50;
+          box-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
+        }
+      }
+    }
+  }
+}
