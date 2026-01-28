@@ -698,6 +698,8 @@ img{
   background-color: var(--bg-secondary) !important;
   color: var(--text-primary) !important;
   transition: all 0.2s ease;
+  display: flex !important;
+  align-items: center !important;
 }
 
 #aioha-modal ul li a.flex.items-center:hover,
@@ -707,10 +709,45 @@ img{
   border-color: var(--accent-primary) !important;
 }
 
-/* Provider icons - add spacing after icon */
+/* Provider icons - basic styling */
 #aioha-modal ul li a svg,
 #aioha-modal ul.space-y-3 li a svg {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
   margin-right: 0.75rem !important;
+  flex-shrink: 0;
+  display: block !important;
+  align-self: center !important;
+}
+
+/* Provider icon images inside SVGs */
+#aioha-modal ul li a svg image,
+#aioha-modal ul.space-y-3 li a svg image {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Force correct icon visibility based on theme (override Tailwind's dark: classes) */
+/* Light mode: hide dark icons (have dark:block), show light icons (have dark:hidden) */
+:root:not([data-theme="dark"]) #aioha-modal .dark\:block,
+:root:not([data-theme="dark"]) #aioha-modal [class*="dark:block"] {
+  display: none !important;
+}
+:root:not([data-theme="dark"]) #aioha-modal .dark\:hidden,
+:root:not([data-theme="dark"]) #aioha-modal [class*="dark:hidden"] {
+  display: block !important;
+}
+
+/* Dark mode: show dark icons, hide light icons */
+[data-theme="dark"] #aioha-modal .dark\:block,
+[data-theme="dark"] #aioha-modal [class*="dark:block"] {
+  display: block !important;
+}
+[data-theme="dark"] #aioha-modal .dark\:hidden,
+[data-theme="dark"] #aioha-modal [class*="dark:hidden"] {
+  display: none !important;
 }
 
 /* Provider name text */
