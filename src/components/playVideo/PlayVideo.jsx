@@ -38,7 +38,6 @@ const PlayVideo = ({ videoDetails, author, permlink }) => {
   const navigate = useNavigate();
   
   // State
-  const [hasKeychain, setHasKeychain] = useState(false);
   const [openTooltip, setOpenToolTip] = useState(false);
   const [tooltipVoters, setTooltipVoters] = useState([]);
   const [isTipModalOpen, setIsTipModalOpen] = useState(false);
@@ -186,17 +185,6 @@ const PlayVideo = ({ videoDetails, author, permlink }) => {
     }
   }, []);
 
-  // Effect: Detect Hive Keychain
-  useEffect(() => {
-    const check = () => setHasKeychain(typeof window !== 'undefined' && !!window.hive_keychain);
-    check();
-    const id = setInterval(check, 1000);
-    const stopId = setTimeout(() => clearInterval(id), 10000);
-    return () => {
-      clearInterval(id);
-      clearTimeout(stopId);
-    };
-  }, []);
 
   // Effect: Fetch account data (only once when user changes)
   useEffect(() => {
@@ -242,32 +230,6 @@ const PlayVideo = ({ videoDetails, author, permlink }) => {
     navigate(`/t/${tag}`);
   }, [navigate]);
 
-  const followUserWithKeychain = useCallback((follower, following) => {
-    const json = JSON.stringify([
-      'follow',
-      {
-        follower,
-        following,
-        what: ['blog'],
-      },
-    ]);
-
-    window.hive_keychain.requestCustomJson(
-      follower,
-      'follow',
-      'Posting',
-      json,
-      'Follow User',
-      (response) => {
-        if (response.success) {
-          toast.success("Followed successfully!");
-        } else {
-          console.error('Failed to follow user:', response.message);
-          toast.error("Failed to follow user");
-        }
-      }
-    );
-  }, []);
 
   const handleProfileNavigate = useCallback((userName) => {
     navigate(`/p/${userName}`);

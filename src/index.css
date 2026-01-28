@@ -594,7 +594,8 @@ img{
   color: var(--text-primary) !important;
 }
 
-#aioha-modal svg path {
+/* Apply stroke ONLY to SVGs that are NOT QR codes (QR codes have w-full h-full classes) */
+#aioha-modal svg:not(.w-full):not(.h-full) path {
   stroke: var(--text-primary) !important;
 }
 
@@ -725,6 +726,31 @@ img{
 #aioha-modal ul li a span[class*="text-gray-500"] {
   background-color: var(--bg-tertiary) !important;
   color: var(--text-secondary) !important;
+}
+
+/* ===== QR CODE PROTECTION ===== */
+/* QR codes in aioha use w-full h-full classes - protect them from stroke rules */
+/* The QR SVG has two paths: one with fill="#FFFFFF" (background) and one with fill="#000000" (pattern) */
+#aioha-modal svg.w-full.h-full,
+#aioha-modal svg.w-full,
+#aioha-modal svg.h-full {
+  /* Don't override QR code colors */
+  color: inherit !important;
+}
+
+#aioha-modal svg.w-full path,
+#aioha-modal svg.h-full path,
+#aioha-modal svg.w-full.h-full path {
+  /* Preserve the inline fill colors and remove any stroke */
+  stroke: none !important;
+  stroke-width: 0 !important;
+}
+
+/* Also protect QR codes with shape-rendering attribute (qrcode.react library) */
+#aioha-modal svg[shape-rendering] path,
+#aioha-modal svg[shapeRendering] path {
+  stroke: none !important;
+  stroke-width: 0 !important;
 }
 
 
