@@ -3,6 +3,8 @@ import { RiProfileLine } from "react-icons/ri";
 import "./Sidebar.scss";
 import apple_icon from "../../assets/image/app-store.png";
 import play_store from "../../assets/image/playstore.png";
+import logo from "../../assets/image/3S_logo.svg";
+import logoDark from "../../assets/image/3S_logodark.png";
 import { PiUserSwitchBold } from "react-icons/pi";
 import { HiInformationCircle } from "react-icons/hi";
 import {
@@ -19,7 +21,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAppStore } from "../../lib/store";
 import { useTVMode } from "../../context/TVModeContext";
 
-const Sidebar = ({ sidebar, tvSidebarFocusIndex = -1, setTvSidebarFocusIndex, onTvSidebarNavigate, onTvSidebarAction }) => {
+const Sidebar = ({ sidebar, tvSidebarFocusIndex = -1, setTvSidebarFocusIndex, onTvSidebarNavigate, onTvSidebarAction, onTvLogin }) => {
   const { authenticated, theme, toggleTheme } = useAppStore();
   const { isTVMode, setSidebarItemCount } = useTVMode();
   const navigate = useNavigate();
@@ -44,7 +46,7 @@ const Sidebar = ({ sidebar, tvSidebarFocusIndex = -1, setTvSidebarFocusIndex, on
   const tvActionItems = [
     ...(authenticated
       ? [{ action: "logout", label: "Log Out", icon: <IoLogOutOutline className="icon" /> }]
-      : [{ action: "login", to: "/login", label: "Log In", icon: <IoLogInOutline className="icon" /> }]
+      : [{ action: "login", label: "Log In", icon: <IoLogInOutline className="icon" /> }]
     ),
     {
       action: "toggle-theme",
@@ -94,9 +96,9 @@ const Sidebar = ({ sidebar, tvSidebarFocusIndex = -1, setTvSidebarFocusIndex, on
   const handleTvActionClick = (item) => {
     if (item.action === "toggle-theme") {
       toggleTheme();
-    } else if (item.action === "login" && item.to) {
-      navigate(item.to);
-      if (onTvSidebarNavigate) onTvSidebarNavigate(item.to);
+    } else if (item.action === "login") {
+      // Open the Aioha modal instead of navigating
+      if (onTvLogin) onTvLogin();
     } else if (item.action === "logout" && onTvSidebarAction) {
       onTvSidebarAction("logout");
     }
@@ -104,7 +106,18 @@ const Sidebar = ({ sidebar, tvSidebarFocusIndex = -1, setTvSidebarFocusIndex, on
 
   return (
     <div className={`sidebar ${sidebar ? "" : "small-sidebar"}${isTVMode && tvSidebarFocusIndex >= 0 ? ' tv-sidebar-active' : ''}`}>
-      {/* TV Mode: Search field at the top */}
+      {/* TV Mode: Logo at the top */}
+      {isTVMode && (
+        <div className="tv-logo-section">
+          <img
+            src={theme === 'dark' ? logoDark : logo}
+            alt="3Speak"
+            className="tv-logo"
+          />
+        </div>
+      )}
+
+      {/* TV Mode: Search field */}
       {isTVMode && (
         <div className="tv-search-section">
           <div

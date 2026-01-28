@@ -11,7 +11,8 @@ const TVUpvoteOverlay = ({
   setWeight,
   voteValue,
   onVote,
-  isLoading
+  isLoading,
+  hiveAuthMessage
 }) => {
   // Focus index: 0 = slider, 1 = vote button
   const [focusIndex, setFocusIndex] = useState(0);
@@ -152,6 +153,13 @@ const TVUpvoteOverlay = ({
             </>
           )}
         </button>
+
+        {hiveAuthMessage && (
+          <div className="hiveauth-waiting">
+            <TailChase size="16" speed="1.5" color="#e31337" />
+            <span>{hiveAuthMessage}</span>
+          </div>
+        )}
 
         <p className="close-hint">Press Back to close</p>
       </div>

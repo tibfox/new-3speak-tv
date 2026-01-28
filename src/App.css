@@ -91,3 +91,43 @@ body.tv-mode .row-header.tv-section-active {
   border-left: 4px solid var(--accent-primary);
   padding-left: 16px;
 }
+
+/* TV Mode - Login modal: only show HiveAuth */
+body.tv-mode .aioha-modal li:has(svg[data-testid="keychain-icon"]),
+body.tv-mode .aioha-modal li:has(img[alt*="Keychain"]),
+body.tv-mode .aioha-modal a:has(svg[data-testid="keychain-icon"]),
+body.tv-mode .aioha-modal a:has(img[alt*="Keychain"]),
+body.tv-mode .aioha-modal li:has(svg[data-testid="ledger-icon"]),
+body.tv-mode .aioha-modal li:has(img[alt*="Ledger"]),
+body.tv-mode .aioha-modal a:has(svg[data-testid="ledger-icon"]),
+body.tv-mode .aioha-modal a:has(img[alt*="Ledger"]),
+body.tv-mode .aioha-modal li:has(svg[data-testid="hivesigner-icon"]),
+body.tv-mode .aioha-modal li:has(img[alt*="HiveSigner"]),
+body.tv-mode .aioha-modal a:has(svg[data-testid="hivesigner-icon"]),
+body.tv-mode .aioha-modal a:has(img[alt*="HiveSigner"]),
+body.tv-mode .aioha-modal li:has(svg[data-testid="peakvault-icon"]),
+body.tv-mode .aioha-modal li:has(img[alt*="Peak"]),
+body.tv-mode .aioha-modal a:has(svg[data-testid="peakvault-icon"]),
+body.tv-mode .aioha-modal a:has(img[alt*="Peak"]) {
+  display: none !important;
+}
+
+/* TV Mode - Login modal focus styles */
+body.tv-mode .aioha-modal li a:focus,
+body.tv-mode .aioha-modal li:focus,
+body.tv-mode .aioha-modal .tv-focused,
+body.tv-mode .aioha-modal a:focus {
+  outline: 3px solid var(--accent-primary, #ff0000) !important;
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+body.tv-mode .aioha-modal input:focus {
+  outline: 3px solid var(--accent-primary, #ff0000) !important;
+  outline-offset: 2px;
+}
+
+body.tv-mode .aioha-modal button:focus {
+  outline: 3px solid var(--accent-primary, #ff0000) !important;
+  outline-offset: 2px;
+}

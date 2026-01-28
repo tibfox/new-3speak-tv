@@ -144,6 +144,20 @@ hr{
   }
 }
 
+// TV Mode logo section
+.tv-logo-section {
+  padding: 0 10px 15px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  .tv-logo {
+    height: 50px;
+    width: auto;
+    object-fit: contain;
+  }
+}
+
 // TV Mode search section
 .tv-search-section {
   padding: 10px 10px 0 0;

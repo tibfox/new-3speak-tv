@@ -31,7 +31,7 @@ import UpvoteTooltip from "../tooltip/UpvoteTooltip";
 import TVUpvoteOverlay from "../tv/TVUpvoteOverlay";
 import axios from "axios";
 import { FEED_URL } from '../../utils/config';
-import { followWithAioha, isLoggedIn } from "../../hive-api/aioha";
+import { followWithAioha, voteWithAioha, isLoggedIn, setHiveAuthCallbacks, isHiveAuthProvider } from "../../hive-api/aioha";
 
 dayjs.extend(relativeTime);
 
@@ -56,6 +56,7 @@ const PlayVideo = ({ videoDetails, author, permlink, forceAutoplay = false }) =>
   const [speakData, setSpeakData] = useState(null);
   const [tvUpvoteOverlayOpen, setTvUpvoteOverlayOpen] = useState(false);
   const [tvVoteLoading, setTvVoteLoading] = useState(false);
+  const [hiveAuthWaitingMessage, setHiveAuthWaitingMessage] = useState(null);
   const accessToken = localStorage.getItem("access_token");
 
   // TV Mode state for publisher section navigation
@@ -344,7 +345,7 @@ const PlayVideo = ({ videoDetails, author, permlink, forceAutoplay = false }) =>
     }
   };
 
-  // TV Mode vote handler
+  // TV Mode vote handler - uses Aioha for HiveAuth support
   const handleTvVote = async () => {
     if (!authenticated) {
       toast.error('Login to complete this operation');
@@ -355,6 +356,7 @@ const PlayVideo = ({ videoDetails, author, permlink, forceAutoplay = false }) =>
     const voteWeight = Math.round(weight * 100);
 
     try {
+      // Check for existing vote
       const data = await getUersContent(author, permlink);
       if (!data) {
         toast.error('Could not fetch post data');
@@ -371,16 +373,14 @@ const PlayVideo = ({ videoDetails, author, permlink, forceAutoplay = false }) =>
         }
       }
 
-      const response = await axios.post('https://studio.3speak.tv/mobile/vote', {
-        author,
-        permlink,
-        weight: voteWeight
-      }, {
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        }
-      });
+      // Set up HiveAuth callbacks to show waiting message
+      setHiveAuthCallbacks(
+        (message) => setHiveAuthWaitingMessage(message),
+        () => setHiveAuthWaitingMessage(null)
+      );
+
+      // Use Aioha to vote (supports HiveAuth, Keychain, etc.)
+      await voteWithAioha(author, permlink, voteWeight);
 
       if (!existingVote) {
         setOptimisticVoteCount((prevCount) => prevCount + 1);
@@ -390,11 +390,13 @@ const PlayVideo = ({ videoDetails, author, permlink, forceAutoplay = false }) =>
       setIsVoted(true);
       setTvVoteLoading(false);
       setTvUpvoteOverlayOpen(false);
+      setHiveAuthWaitingMessage(null);
     } catch (err) {
       console.error('Vote failed:', err);
-      toast.error('Vote failed, please try again');
+      toast.error('Vote failed: ' + (err.message || 'please try again'));
       setTvVoteLoading(false);
       setTvUpvoteOverlayOpen(false);
+      setHiveAuthWaitingMessage(null);
     }
   };
 
@@ -572,6 +574,7 @@ const PlayVideo = ({ videoDetails, author, permlink, forceAutoplay = false }) =>
         voteValue={voteValue}
         onVote={handleTvVote}
         isLoading={tvVoteLoading}
+        hiveAuthMessage={hiveAuthWaitingMessage}
       />
     </>
   );

@@ -313,6 +313,126 @@
   }
 }
 
+// TV Mode: Make cards bigger and wider on homepage
+body.tv-mode {
+  .video-row {
+    margin-bottom: 20px;
+
+    .row-header {
+      margin-bottom: 12px;
+      padding: 0 15px;
+
+      .wrap-title {
+        gap: 10px;
+
+        svg {
+          width: 24px;
+          height: 24px;
+        }
+      }
+
+      h2 {
+        font-size: 24px;
+      }
+    }
+
+    .video-scroll-container-horizontal {
+      padding: 10px 15px;
+
+      .card-container-horizontal .card-container {
+        gap: 30px !important;
+        grid-column-gap: 30px !important;
+        grid-row-gap: 30px !important;
+
+        .card {
+          width: 420px;
+
+          .img-wrap img {
+            height: 280px;
+          }
+
+          h2 {
+            font-size: 19px;
+            margin: 8px 0;
+            padding: 0 6px;
+          }
+
+          .profile-view-wrap {
+            padding: 0 6px;
+
+            .profile-wrapper {
+              gap: 6px;
+
+              .profile-img {
+                width: 36px;
+                height: 36px;
+              }
+
+              h2 {
+                font-size: 16px;
+              }
+            }
+
+            .view-count {
+              font-size: 15px;
+
+              span {
+                font-size: 14px;
+              }
+            }
+          }
+
+          .bottom-action {
+            padding: 8px 6px;
+
+            p {
+              font-size: 16px;
+            }
+
+            .wrap-left {
+              gap: 16px;
+              font-size: 16px;
+
+              .flex-div {
+                gap: 4px;
+
+                span {
+                  font-size: 16px;
+                }
+
+                .icon {
+                  font-size: 24px;
+                }
+
+                .icon-heart {
+                  font-size: 20px;
+                }
+              }
+            }
+          }
+
+          // TV focus state
+          &.tv-focused {
+            outline: 4px solid var(--accent-primary);
+            outline-offset: 4px;
+            transform: scale(1.02);
+            box-shadow: 0 0 30px rgba(229, 57, 53, 0.4);
+            transition: all 0.2s ease;
+          }
+        }
+      }
+
+      .skeleton-horizontal-container .skeleton-card-horizontal {
+        width: 420px;
+
+        .video-thumbnail-skeleton {
+          height: 280px;
+        }
+      }
+    }
+  }
+}
+
 // TV Mode Exit Confirmation Dialog
 .tv-exit-confirm-overlay {
   position: fixed;

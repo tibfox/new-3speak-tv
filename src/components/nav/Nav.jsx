@@ -166,7 +166,6 @@ function Nav({ setSideBar, toggleProfileNav, openLoginModal, tvNavFocusIndex = -
           <div
             className={`tv-nav-item${isTVMode && tvNavFocusIndex === 0 ? ' tv-focused' : ''}`}
             data-tv-nav-focusable="true"
-            onClick={toggleTheme}
           >
             <ThemeToggle />
           </div>
@@ -193,7 +192,6 @@ function Nav({ setSideBar, toggleProfileNav, openLoginModal, tvNavFocusIndex = -
           <div
             className={`tv-nav-item${isTVMode && tvNavFocusIndex === 0 ? ' tv-focused' : ''}`}
             data-tv-nav-focusable="true"
-            onClick={toggleTheme}
           >
             <ThemeToggle />
           </div>

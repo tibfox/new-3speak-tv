@@ -55,7 +55,7 @@ import HiveImageUploader from "./page/HiveImageUploader";
 import { LegacyUploadProvider } from "./context/LegacyUploadContext";
 import { HiveAuthProvider } from "./context/HiveAuthContext";
 import { AiohaModal, useAioha } from "@aioha/react-ui";
-import { KeyTypes } from "@aioha/aioha";
+import { KeyTypes, Providers } from "@aioha/aioha";
 import '@aioha/react-ui/dist/build.css';
 import { LOCAL_STORAGE_ACCESS_TOKEN_KEY, LOCAL_STORAGE_USER_ID_KEY } from "./hooks/localStorageKeys";
 import axios from "axios";
@@ -65,9 +65,9 @@ import ExitDialog from "./components/tv/ExitDialog";
 // Inner component that uses TV mode context
 function AppContent() {
   const location = useLocation();
-  const { initializeAuth, authenticated, LogOut, switchAccount, setUser, user: appUser } = useAppStore();
+  const { initializeAuth, authenticated, LogOut, switchAccount, setUser, user: appUser, initializeTheme } = useAppStore();
   const { aioha, user: aiohaUser } = useAioha();
-  const { isTVMode, tvFocusArea, tvNavFocusIndex, tvSidebarFocusIndex, setTvNavFocusIndex, setTvSidebarFocusIndex, tvSidebarVisible, setTvSidebarVisible, sidebarItemCount } = useTVMode();
+  const { isTVMode, tvFocusArea, tvNavFocusIndex, tvSidebarFocusIndex, setTvNavFocusIndex, setTvSidebarFocusIndex, tvSidebarVisible, setTvSidebarVisible, sidebarItemCount, showExitDialog, setShowExitDialog } = useTVMode();
   const [sidebar, setSideBar] = useState(true);
   const [profileNavVisible, setProfileNavVisible] = useState(false);
 
@@ -83,6 +83,7 @@ function AppContent() {
 
   useEffect(() => {
     initializeAuth();
+    initializeTheme();
     tokenVaildation()
 
   }, []);
@@ -225,6 +226,173 @@ function AppContent() {
     userWhenModalOpened.current = aioha.getCurrentUser(); // Save current user when modal opens
     setLoginModalOpen(true);
   }
+
+  // TV Mode: Intercept exit dialog / back button messages when login modal is open
+  useEffect(() => {
+    if (!loginModalOpen || !isTVMode) return;
+
+    // Intercept messages from parent Tizen wrapper
+    const handleMessage = (event) => {
+      if (event.data && (event.data.type === 'show-exit-dialog' || event.data.type === 'handle-back-button')) {
+        console.log('Login modal intercepting:', event.data.type);
+        // Close the login modal instead of showing exit dialog
+        setLoginModalOpen(false);
+        userWhenModalOpened.current = null;
+      }
+    };
+
+    // Use capture phase to intercept before TVModeContext
+    window.addEventListener('message', handleMessage, true);
+    return () => window.removeEventListener('message', handleMessage, true);
+  }, [loginModalOpen, isTVMode]);
+
+  // TV Mode: Also handle if exit dialog was already triggered
+  useEffect(() => {
+    if (loginModalOpen && isTVMode && showExitDialog) {
+      // Exit dialog was triggered while login modal is open
+      // Close the login modal instead of showing exit dialog
+      setShowExitDialog(false);
+      setLoginModalOpen(false);
+      userWhenModalOpened.current = null;
+    }
+  }, [loginModalOpen, isTVMode, showExitDialog]);
+
+  // TV Mode: Handle focus and keyboard navigation within login modal
+  useEffect(() => {
+    if (!loginModalOpen || !isTVMode) return;
+
+    let currentFocusedElement = null;
+
+    // Focus the first provider button when modal opens
+    const focusProviderButton = () => {
+      // Find provider buttons - they are <a> tags inside <li> elements in a ul with space-y-3 class
+      const providerBtns = document.querySelectorAll('ul.space-y-3 li a');
+      console.log('Found provider buttons:', providerBtns.length);
+      if (providerBtns.length > 0) {
+        // Get the first visible button (HiveAuth should be the only one visible in TV mode due to CSS)
+        const btn = providerBtns[0];
+        btn.setAttribute('tabindex', '0');
+        btn.focus();
+        btn.style.outline = '3px solid red';
+        btn.style.outlineOffset = '2px';
+        currentFocusedElement = btn;
+        console.log('Focused provider button:', btn);
+      }
+    };
+
+    // Watch for username input to appear (after selecting provider)
+    const observer = new MutationObserver(() => {
+      const usernameInput = document.querySelector('input[type="text"], input[placeholder*="username" i]');
+      if (usernameInput && document.activeElement !== usernameInput) {
+        usernameInput.focus();
+        usernameInput.style.outline = '3px solid red';
+        usernameInput.style.outlineOffset = '2px';
+        currentFocusedElement = usernameInput;
+        console.log('Focused username input:', usernameInput);
+      }
+    });
+
+    // Small delay to ensure modal is rendered
+    const focusTimer = setTimeout(() => {
+      focusProviderButton();
+      // Start observing for DOM changes (username input appearing)
+      const modalContainer = document.body;
+      observer.observe(modalContainer, { childList: true, subtree: true });
+    }, 300);
+
+    // Handle keyboard navigation within the modal
+    const handleModalKeyDown = (e) => {
+      // Stop propagation to prevent sidebar from handling these keys
+      e.stopPropagation();
+
+      // Get all focusable elements in the modal
+      const getFocusableElements = () => {
+        const providerBtns = Array.from(document.querySelectorAll('ul.space-y-3 li a'));
+        const inputs = Array.from(document.querySelectorAll('input[type="text"], input:not([type="hidden"])'));
+        const buttons = Array.from(document.querySelectorAll('button[type="submit"], button:not([class*="close"])'));
+        return [...providerBtns, ...inputs, ...buttons].filter(el => {
+          // Filter out hidden elements
+          const style = window.getComputedStyle(el);
+          return style.display !== 'none' && style.visibility !== 'hidden';
+        });
+      };
+
+      // Arrow key navigation (up/down)
+      if (e.keyCode === 38 || e.keyCode === 40) {
+        e.preventDefault();
+        const focusable = getFocusableElements();
+        if (focusable.length === 0) return;
+
+        const currentIndex = focusable.indexOf(document.activeElement);
+        let nextIndex;
+
+        if (e.keyCode === 38) {
+          // Up arrow
+          nextIndex = currentIndex <= 0 ? focusable.length - 1 : currentIndex - 1;
+        } else {
+          // Down arrow
+          nextIndex = currentIndex >= focusable.length - 1 ? 0 : currentIndex + 1;
+        }
+
+        const nextElement = focusable[nextIndex];
+        if (nextElement) {
+          // Remove outline from current
+          if (currentFocusedElement) {
+            currentFocusedElement.style.outline = '';
+            currentFocusedElement.style.outlineOffset = '';
+          }
+          // Focus and style next
+          nextElement.setAttribute('tabindex', '0');
+          nextElement.focus();
+          nextElement.style.outline = '3px solid red';
+          nextElement.style.outlineOffset = '2px';
+          currentFocusedElement = nextElement;
+        }
+        return;
+      }
+
+      // Enter key - click the focused element or submit
+      if (e.keyCode === 13) {
+        const activeEl = document.activeElement;
+        // If we're in an input field, find and click the submit button
+        if (activeEl && activeEl.tagName === 'INPUT') {
+          e.preventDefault();
+          // Find the submit/login button - usually a button with type="submit" or containing "login"/"submit" text
+          const submitBtn = document.querySelector('button[type="submit"]') ||
+                           document.querySelector('button.btn-primary') ||
+                           Array.from(document.querySelectorAll('button')).find(btn =>
+                             btn.textContent.toLowerCase().includes('login') ||
+                             btn.textContent.toLowerCase().includes('submit') ||
+                             btn.textContent.toLowerCase().includes('connect')
+                           );
+          if (submitBtn) {
+            submitBtn.click();
+          }
+          return;
+        }
+        e.preventDefault();
+        if (currentFocusedElement) {
+          currentFocusedElement.click();
+        }
+        return;
+      }
+
+      // Close modal on Back/Escape
+      if (e.keyCode === 10009 || e.keyCode === 27) {
+        e.preventDefault();
+        closeLoginModal();
+      }
+    };
+
+    // Use capture phase to intercept events before they reach other handlers
+    document.addEventListener('keydown', handleModalKeyDown, true);
+
+    return () => {
+      clearTimeout(focusTimer);
+      observer.disconnect();
+      document.removeEventListener('keydown', handleModalKeyDown, true);
+    };
+  }, [loginModalOpen, isTVMode]);
 
   const closeLoginModal = async () => {
     setLoginModalOpen(false);
@@ -377,6 +545,7 @@ function AppContent() {
               LogOut();
             }
           }}
+          onTvLogin={openLoginModal}
         />
         <div className={`container ${sidebar ? "" : "large-container"}${isTVMode && tvSidebarVisible ? ' tv-sidebar-open' : ''}`}>
           <ScrollToTop />
@@ -431,6 +600,7 @@ function AppContent() {
             msg: `${loginProof}`,
             keyType: KeyTypes.Posting
           }}
+          forceShowProviders={isTVMode ? [Providers.HiveAuth] : undefined}
         />
       </div>
       {/* Exit confirmation dialog for TV mode */}

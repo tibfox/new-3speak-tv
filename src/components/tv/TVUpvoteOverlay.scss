@@ -156,6 +156,30 @@
   }
 }
 
+.hiveauth-waiting {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 20px;
+  padding: 16px 24px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--accent-primary);
+  border-radius: 12px;
+  animation: hiveAuthPulse 2s ease-in-out infinite;
+
+  span {
+    color: var(--text-primary);
+    font-size: 16px;
+    font-weight: 500;
+  }
+}
+
+@keyframes hiveAuthPulse {
+  0%, 100% { opacity: 1; border-color: var(--accent-primary); }
+  50% { opacity: 0.8; border-color: var(--accent-light); }
+}
+
 .close-hint {
   color: var(--text-muted);
   font-size: 12px;
