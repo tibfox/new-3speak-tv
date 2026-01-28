@@ -4,11 +4,6 @@ const aioha = initAioha({
   hiveauth: {
     name: '3Speak',
     description: '3Speak - Decentralized Video Platform'
-  },
-  hivesigner: {
-    app: '3speak.tv',
-    callbackURL: window.location.origin + '/hivesigner.html',
-    scope: ['login', 'vote', 'comment', 'custom_json']
   }
 })
 
