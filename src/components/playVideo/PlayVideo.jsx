@@ -31,7 +31,7 @@ import UpvoteTooltip from "../tooltip/UpvoteTooltip";
 import TVUpvoteOverlay from "../tv/TVUpvoteOverlay";
 import axios from "axios";
 import { FEED_URL } from '../../utils/config';
-import { followWithAioha, voteWithAioha, isLoggedIn, setHiveAuthCallbacks, isHiveAuthProvider } from "../../hive-api/aioha";
+import { followWithAioha, voteWithAioha, isLoggedIn, isHiveAuthProvider } from "../../hive-api/aioha";
 
 dayjs.extend(relativeTime);
 
@@ -56,7 +56,6 @@ const PlayVideo = ({ videoDetails, author, permlink, forceAutoplay = false }) =>
   const [speakData, setSpeakData] = useState(null);
   const [tvUpvoteOverlayOpen, setTvUpvoteOverlayOpen] = useState(false);
   const [tvVoteLoading, setTvVoteLoading] = useState(false);
-  const [hiveAuthWaitingMessage, setHiveAuthWaitingMessage] = useState(null);
   const accessToken = localStorage.getItem("access_token");
 
   // TV Mode state for publisher section navigation
@@ -373,13 +372,8 @@ const PlayVideo = ({ videoDetails, author, permlink, forceAutoplay = false }) =>
         }
       }
 
-      // Set up HiveAuth callbacks to show waiting message
-      setHiveAuthCallbacks(
-        (message) => setHiveAuthWaitingMessage(message),
-        () => setHiveAuthWaitingMessage(null)
-      );
-
       // Use Aioha to vote (supports HiveAuth, Keychain, etc.)
+      // Note: HiveAuth waiting popup is handled globally by HiveAuthContext
       await voteWithAioha(author, permlink, voteWeight);
 
       if (!existingVote) {
@@ -390,13 +384,11 @@ const PlayVideo = ({ videoDetails, author, permlink, forceAutoplay = false }) =>
       setIsVoted(true);
       setTvVoteLoading(false);
       setTvUpvoteOverlayOpen(false);
-      setHiveAuthWaitingMessage(null);
     } catch (err) {
       console.error('Vote failed:', err);
       toast.error('Vote failed: ' + (err.message || 'please try again'));
       setTvVoteLoading(false);
       setTvUpvoteOverlayOpen(false);
-      setHiveAuthWaitingMessage(null);
     }
   };
 
@@ -574,7 +566,6 @@ const PlayVideo = ({ videoDetails, author, permlink, forceAutoplay = false }) =>
         voteValue={voteValue}
         onVote={handleTvVote}
         isLoading={tvVoteLoading}
-        hiveAuthMessage={hiveAuthWaitingMessage}
       />
     </>
   );

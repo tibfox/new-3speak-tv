@@ -22,7 +22,7 @@ import { useAppStore } from "../../lib/store";
 import { useTVMode } from "../../context/TVModeContext";
 
 const Sidebar = ({ sidebar, tvSidebarFocusIndex = -1, setTvSidebarFocusIndex, onTvSidebarNavigate, onTvSidebarAction, onTvLogin }) => {
-  const { authenticated, theme, toggleTheme } = useAppStore();
+  const { authenticated, theme, toggleTheme, user } = useAppStore();
   const { isTVMode, setSidebarItemCount } = useTVMode();
   const navigate = useNavigate();
   const [tvSearchTerm, setTvSearchTerm] = useState('');
@@ -42,10 +42,19 @@ const Sidebar = ({ sidebar, tvSidebarFocusIndex = -1, setTvSidebarFocusIndex, on
     { to: "/about", label: "About 3speak", icon: <HiInformationCircle className="icon" /> },
   ];
 
-  // TV mode action items (login/logout and dark mode)
+  // TV mode action items (account/login and dark mode)
   const tvActionItems = [
     ...(authenticated
-      ? [{ action: "logout", label: "Log Out", icon: <IoLogOutOutline className="icon" /> }]
+      ? [{
+          action: "account",
+          label: user || "Account",
+          icon: <img
+            src={`https://images.hive.blog/u/${user}/avatar`}
+            alt={user}
+            className="tv-account-avatar"
+            style={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover', marginRight: 15 }}
+          />
+        }]
       : [{ action: "login", label: "Log In", icon: <IoLogInOutline className="icon" /> }]
     ),
     {
@@ -96,11 +105,9 @@ const Sidebar = ({ sidebar, tvSidebarFocusIndex = -1, setTvSidebarFocusIndex, on
   const handleTvActionClick = (item) => {
     if (item.action === "toggle-theme") {
       toggleTheme();
-    } else if (item.action === "login") {
-      // Open the Aioha modal instead of navigating
+    } else if (item.action === "login" || item.action === "account") {
+      // Open the Aioha modal for login or account management
       if (onTvLogin) onTvLogin();
-    } else if (item.action === "logout" && onTvSidebarAction) {
-      onTvSidebarAction("logout");
     }
   };
 

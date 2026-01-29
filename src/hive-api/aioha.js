@@ -27,6 +27,12 @@ export const isHiveAuthProvider = () => {
 // Wrapper to handle HiveAuth waiting state
 const withHiveAuthWaiting = async (operation, message = 'Waiting for approval...') => {
   const isHiveAuth = isHiveAuthProvider();
+  const timestamp = new Date().toISOString();
+  const stack = new Error().stack;
+
+  console.log(`[AIOHA ${timestamp}] Starting operation: "${message}"`);
+  console.log(`[AIOHA ${timestamp}] Provider: ${aioha.getCurrentProvider() || 'none'}, User: ${aioha.getCurrentUser() || 'none'}`);
+  console.log(`[AIOHA ${timestamp}] Call stack:`, stack);
 
   if (isHiveAuth && hiveAuthCallbacks.onWaiting) {
     hiveAuthCallbacks.onWaiting(message);
@@ -34,7 +40,11 @@ const withHiveAuthWaiting = async (operation, message = 'Waiting for approval...
 
   try {
     const result = await operation();
+    console.log(`[AIOHA ${timestamp}] Operation completed: "${message}"`, result);
     return result;
+  } catch (error) {
+    console.error(`[AIOHA ${timestamp}] Operation failed: "${message}"`, error);
+    throw error;
   } finally {
     if (isHiveAuth && hiveAuthCallbacks.onComplete) {
       hiveAuthCallbacks.onComplete();

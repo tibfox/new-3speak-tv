@@ -765,6 +765,22 @@ img{
   color: var(--text-secondary) !important;
 }
 
+/* ===== QR CODE CENTERING ===== */
+/* Center the QR code container in the modal */
+#aioha-modal div:has(> svg.w-full.h-full),
+#aioha-modal div:has(> svg[shape-rendering]) {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: 100% !important;
+}
+
+/* Also target any parent flex containers that might have the QR */
+#aioha-modal .flex:has(svg.w-full),
+#aioha-modal div[class*="flex"]:has(svg.w-full) {
+  justify-content: center !important;
+}
+
 /* ===== QR CODE PROTECTION ===== */
 /* QR codes in aioha use w-full h-full classes - protect them from stroke rules */
 /* The QR SVG has two paths: one with fill="#FFFFFF" (background) and one with fill="#000000" (pattern) */

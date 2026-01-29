@@ -77,6 +77,7 @@ function AppContent() {
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [loginProof, setLoginProof] = useState(() => Math.floor(Date.now() / 1000));
   const userWhenModalOpened = useRef(null); // Track user when modal opens
+  const loginInProgress = useRef(false); // Track if handleAiohaLogin is in progress
   
 
 
@@ -105,6 +106,12 @@ function AppContent() {
   // Watch for aioha user changes and sync with 3Speak
   useEffect(() => {
     const syncAiohaUser = async () => {
+      // Skip sync if login modal is open or login is in progress - handleAiohaLogin will handle it
+      if (loginModalOpen || loginInProgress.current) {
+        console.log("Skipping aiohaUser sync - login modal is open or login in progress");
+        return;
+      }
+
       // If aioha user changed and is different from app user
       if (aiohaUser && aiohaUser !== appUser) {
         console.log("Aioha user changed:", aiohaUser, "App user:", appUser);
@@ -179,7 +186,7 @@ function AppContent() {
     };
 
     syncAiohaUser();
-  }, [aiohaUser]);
+  }, [aiohaUser, loginModalOpen]);
 
 
 
@@ -224,6 +231,7 @@ function AppContent() {
   const openLoginModal = () => {
     setLoginProof(Math.floor(Date.now() / 1000)); // Fresh timestamp when modal opens
     userWhenModalOpened.current = aioha.getCurrentUser(); // Save current user when modal opens
+    loginInProgress.current = true; // Set flag early to prevent useEffect from signing during modal interaction
     setLoginModalOpen(true);
   }
 
@@ -263,13 +271,17 @@ function AppContent() {
 
     let currentFocusedElement = null;
 
-    // Focus the first provider button when modal opens
-    const focusProviderButton = () => {
+    // Focus the first focusable element when modal opens
+    const focusFirstElement = () => {
+      const aiohaModal = document.getElementById('aioha-modal');
+      if (!aiohaModal) return;
+
       // Find provider buttons - they are <a> tags inside <li> elements in a ul with space-y-3 class
-      const providerBtns = document.querySelectorAll('ul.space-y-3 li a');
+      const providerBtns = aiohaModal.querySelectorAll('ul.space-y-3 li a');
       console.log('Found provider buttons:', providerBtns.length);
+
       if (providerBtns.length > 0) {
-        // Get the first visible button (HiveAuth should be the only one visible in TV mode due to CSS)
+        // Not logged in - focus the first provider button
         const btn = providerBtns[0];
         btn.setAttribute('tabindex', '0');
         btn.focus();
@@ -277,24 +289,84 @@ function AppContent() {
         btn.style.outlineOffset = '2px';
         currentFocusedElement = btn;
         console.log('Focused provider button:', btn);
+        return;
+      }
+
+      // Logged in - look for account management buttons/rows
+      // Find clickable elements in the modal (buttons, rows, links)
+      const clickableElements = aiohaModal.querySelectorAll(
+        'button:not([class*="close"]):not([class*="absolute"]), ' +
+        'a[class*="flex"], ' +
+        'div[class*="cursor-pointer"], ' +
+        'tr[class*="cursor-pointer"], ' +
+        'td[class*="cursor-pointer"]'
+      );
+
+      console.log('Found clickable elements for logged-in user:', clickableElements.length);
+
+      if (clickableElements.length > 0) {
+        // Filter out close buttons and hidden elements
+        const visibleElements = Array.from(clickableElements).filter(el => {
+          const style = window.getComputedStyle(el);
+          return style.display !== 'none' && style.visibility !== 'hidden';
+        });
+
+        if (visibleElements.length > 0) {
+          const firstEl = visibleElements[0];
+          firstEl.setAttribute('tabindex', '0');
+          firstEl.focus();
+          firstEl.style.outline = '3px solid red';
+          firstEl.style.outlineOffset = '2px';
+          currentFocusedElement = firstEl;
+          console.log('Focused first element for logged-in user:', firstEl);
+        }
       }
     };
 
-    // Watch for username input to appear (after selecting provider)
-    const observer = new MutationObserver(() => {
-      const usernameInput = document.querySelector('input[type="text"], input[placeholder*="username" i]');
-      if (usernameInput && document.activeElement !== usernameInput) {
+    // Track if we've already focused the username input
+    let hasUserInputFocused = false;
+
+    // Function to find and focus username input
+    const focusUsernameInput = () => {
+      if (hasUserInputFocused) return false;
+
+      // Target the specific Hive username input field by ID or placeholder
+      const usernameInput = document.querySelector('input#small-input') ||
+                           document.querySelector('input[placeholder="Enter Hive Username"]') ||
+                           document.querySelector('input[placeholder*="Hive Username" i]');
+
+      if (usernameInput) {
+        // Remove outline from previous element
+        if (currentFocusedElement && currentFocusedElement !== usernameInput) {
+          currentFocusedElement.style.outline = '';
+          currentFocusedElement.style.outlineOffset = '';
+        }
         usernameInput.focus();
         usernameInput.style.outline = '3px solid red';
         usernameInput.style.outlineOffset = '2px';
         currentFocusedElement = usernameInput;
+        hasUserInputFocused = true;
         console.log('Focused username input:', usernameInput);
+        return true;
       }
+      return false;
+    };
+
+    // Watch for username input to appear (after selecting provider)
+    const observer = new MutationObserver(() => {
+      focusUsernameInput();
     });
+
+    // Poll for username input (more reliable than MutationObserver alone)
+    const pollForInput = setInterval(() => {
+      if (focusUsernameInput()) {
+        clearInterval(pollForInput);
+      }
+    }, 200);
 
     // Small delay to ensure modal is rendered
     const focusTimer = setTimeout(() => {
-      focusProviderButton();
+      focusFirstElement();
       // Start observing for DOM changes (username input appearing)
       const modalContainer = document.body;
       observer.observe(modalContainer, { childList: true, subtree: true });
@@ -307,15 +379,55 @@ function AppContent() {
 
       // Get all focusable elements in the modal
       const getFocusableElements = () => {
-        const providerBtns = Array.from(document.querySelectorAll('ul.space-y-3 li a'));
-        const inputs = Array.from(document.querySelectorAll('input[type="text"], input:not([type="hidden"])'));
-        const buttons = Array.from(document.querySelectorAll('button[type="submit"], button:not([class*="close"])'));
-        return [...providerBtns, ...inputs, ...buttons].filter(el => {
-          // Filter out hidden elements
+        const aiohaModal = document.getElementById('aioha-modal');
+        if (!aiohaModal) return [];
+
+        const providerBtns = Array.from(aiohaModal.querySelectorAll('ul.space-y-3 li a'));
+        const inputs = Array.from(aiohaModal.querySelectorAll('input[type="text"], input:not([type="hidden"])'));
+        const buttons = Array.from(aiohaModal.querySelectorAll('button[type="submit"], button:not([class*="close"]):not([class*="absolute"])'));
+        // Also include clickable rows/elements for logged-in user account management
+        const clickableRows = Array.from(aiohaModal.querySelectorAll(
+          'tr[class*="cursor-pointer"], ' +
+          'td[class*="cursor-pointer"], ' +
+          'div[class*="cursor-pointer"], ' +
+          'a[class*="flex"]'
+        ));
+
+        return [...providerBtns, ...inputs, ...buttons, ...clickableRows].filter(el => {
+          // Filter out hidden elements and close buttons
           const style = window.getComputedStyle(el);
-          return style.display !== 'none' && style.visibility !== 'hidden';
+          const isVisible = style.display !== 'none' && style.visibility !== 'hidden';
+          const isCloseBtn = el.closest('[class*="close"]') || el.closest('[class*="absolute"]');
+          return isVisible && !isCloseBtn;
         });
       };
+
+      // Arrow key navigation (up/down/right)
+      // Right arrow (39) when on input field moves to proceed button
+      if (e.keyCode === 39) {
+        const activeEl = document.activeElement;
+        if (activeEl && activeEl.tagName === 'INPUT') {
+          e.preventDefault();
+          // Find the proceed button (right arrow) by aria-label first
+          const submitBtn = document.querySelector('button[aria-label="Proceed"]') ||
+                           document.querySelector('button[type="submit"]') ||
+                           document.querySelector('button.btn-primary') ||
+                           document.querySelector('button svg')?.closest('button');
+          if (submitBtn) {
+            // Remove outline from current
+            if (currentFocusedElement) {
+              currentFocusedElement.style.outline = '';
+              currentFocusedElement.style.outlineOffset = '';
+            }
+            submitBtn.setAttribute('tabindex', '0');
+            submitBtn.focus();
+            submitBtn.style.outline = '3px solid red';
+            submitBtn.style.outlineOffset = '2px';
+            currentFocusedElement = submitBtn;
+          }
+        }
+        return;
+      }
 
       // Arrow key navigation (up/down)
       if (e.keyCode === 38 || e.keyCode === 40) {
@@ -354,19 +466,20 @@ function AppContent() {
       // Enter key - click the focused element or submit
       if (e.keyCode === 13) {
         const activeEl = document.activeElement;
-        // If we're in an input field, find and click the submit button
+        // If we're in an input field, find and click the proceed/submit button
         if (activeEl && activeEl.tagName === 'INPUT') {
           e.preventDefault();
-          // Find the submit/login button - usually a button with type="submit" or containing "login"/"submit" text
-          const submitBtn = document.querySelector('button[type="submit"]') ||
-                           document.querySelector('button.btn-primary') ||
-                           Array.from(document.querySelectorAll('button')).find(btn =>
-                             btn.textContent.toLowerCase().includes('login') ||
-                             btn.textContent.toLowerCase().includes('submit') ||
-                             btn.textContent.toLowerCase().includes('connect')
-                           );
-          if (submitBtn) {
-            submitBtn.click();
+          // Find the proceed button (right arrow) or submit button
+          const proceedBtn = document.querySelector('button[aria-label="Proceed"]') ||
+                            document.querySelector('button[type="submit"]') ||
+                            document.querySelector('button.btn-primary') ||
+                            // Find button with SVG arrow icon
+                            Array.from(document.querySelectorAll('button')).find(btn =>
+                              btn.querySelector('svg path[d*="m9 5 7 7-7 7"]') ||
+                              btn.querySelector('svg') && btn.closest('form')
+                            );
+          if (proceedBtn) {
+            proceedBtn.click();
           }
           return;
         }
@@ -389,6 +502,7 @@ function AppContent() {
 
     return () => {
       clearTimeout(focusTimer);
+      clearInterval(pollForInput);
       observer.disconnect();
       document.removeEventListener('keydown', handleModalKeyDown, true);
     };
@@ -401,86 +515,28 @@ function AppContent() {
     const currentAiohaUser = aioha.getCurrentUser();
     const previousUser = userWhenModalOpened.current;
 
-    // Compare against user when modal was opened (more reliable than appUser due to race conditions)
+    // If user changed while modal was open, handleAiohaLogin should handle it
+    // Just clear refs and return - no additional signing needed
     if (currentAiohaUser && currentAiohaUser !== previousUser) {
-      console.log("User changed while modal was open:", currentAiohaUser, "vs", previousUser);
-
-      // Check if we already have a token for this user (no need to re-authenticate)
-      const existingAccounts = JSON.parse(localStorage.getItem("accountsList")) || [];
-      const existingAccount = existingAccounts.find(acc => acc.username === currentAiohaUser);
-
-      if (existingAccount && existingAccount.access_token) {
-        // Use existing token - no signing required
-        console.log("Using existing token for:", currentAiohaUser);
-        localStorage.setItem(LOCAL_STORAGE_ACCESS_TOKEN_KEY, existingAccount.access_token);
-        localStorage.setItem(LOCAL_STORAGE_USER_ID_KEY, currentAiohaUser);
-        setUser(currentAiohaUser);
-        initializeAuth();
-        toast.success(`Switched to ${currentAiohaUser}`);
-      } else {
-        // New account - need to sign and get token from backend
-        try {
-          const proof = Math.floor(Date.now() / 1000);
-          const signResult = await aioha.signMessage(`${proof}`, KeyTypes.Posting);
-
-          if (signResult.error) {
-            console.error("Sign error:", signResult.error);
-            return;
-          }
-
-          const data = {
-            challenge: signResult.result,
-            proof: proof,
-            publicKey: signResult.publicKey,
-            username: currentAiohaUser,
-          };
-
-          const response = await axios.post(
-            'https://studio.3speak.tv/mobile/login',
-            data,
-            {
-              headers: {
-                'Content-Type': 'application/json',
-              },
-            }
-          );
-
-          console.log('Account switch success:', response.data);
-          const token = response.data.token;
-
-          localStorage.setItem(LOCAL_STORAGE_ACCESS_TOKEN_KEY, token);
-          localStorage.setItem(LOCAL_STORAGE_USER_ID_KEY, currentAiohaUser);
-
-          // Save to accountsList for future switches
-          const filtered = existingAccounts.filter(acc => acc.username !== currentAiohaUser);
-          const updated = [...filtered, { username: currentAiohaUser, access_token: token }];
-          localStorage.setItem("accountsList", JSON.stringify(updated));
-
-          setUser(currentAiohaUser);
-          initializeAuth();
-          toast.success(`Switched to ${currentAiohaUser}`);
-        } catch (err) {
-          console.error("Account switch error:", err);
-          toast.error("Failed to switch account: " + (err.response?.data?.error || err.message));
-        }
-      }
-    } else if (!currentAiohaUser && previousUser) {
-      // User logged out via modal
-      console.log("User logged out via modal");
-      LogOut(previousUser);
-      toast.success("Logged out successfully");
+      console.log("User changed via modal, handleAiohaLogin handles the login");
+      userWhenModalOpened.current = null;
+      // Don't clear loginInProgress here - handleAiohaLogin will do it
+      return;
     }
 
-    // Clear the ref
+    // Modal closed without login (cancelled) - clear the flag
+    loginInProgress.current = false;
     userWhenModalOpened.current = null;
   }
 
   // Handle login callback from AiohaModal
   const handleAiohaLogin = async (loginResult) => {
     console.log("Aioha login result:", loginResult);
+    loginInProgress.current = true; // Mark login as in progress to prevent duplicate signing
 
     if (!loginResult || loginResult.error) {
       toast.error("Login failed: " + (loginResult?.error || "Unknown error"));
+      loginInProgress.current = false;
       return;
     }
 
@@ -508,12 +564,22 @@ function AppContent() {
       const token = response.data.token;
       localStorage.setItem(LOCAL_STORAGE_ACCESS_TOKEN_KEY, token);
       localStorage.setItem(LOCAL_STORAGE_USER_ID_KEY, loginResult.username);
+
+      // Save to accountsList so useEffect/closeLoginModal don't trigger another signing request
+      const existingAccounts = JSON.parse(localStorage.getItem("accountsList")) || [];
+      const filtered = existingAccounts.filter(acc => acc.username !== loginResult.username);
+      const updated = [...filtered, { username: loginResult.username, access_token: token }];
+      localStorage.setItem("accountsList", JSON.stringify(updated));
+
+      setUser(loginResult.username);
       initializeAuth();
       setLoginModalOpen(false);
       toast.success("Login successful!");
+      loginInProgress.current = false;
     } catch (err) {
       console.error("3Speak auth error:", err);
       toast.error("Login failed: " + (err.response?.data?.error || err.message));
+      loginInProgress.current = false;
     }
   }
 
