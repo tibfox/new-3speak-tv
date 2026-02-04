@@ -33,7 +33,7 @@ export const TVKeyboardProvider = ({ children }) => {
     setIsOpen(true);
   }, []);
 
-  const closeKeyboard = useCallback(() => {
+  const closeKeyboard = useCallback((autoSubmit = false) => {
     setIsOpen(false);
     // If there's a target input, update its value
     if (targetInput && value) {
@@ -56,6 +56,42 @@ export const TVKeyboardProvider = ({ children }) => {
       // Dispatch change event
       targetInput.dispatchEvent(new Event('input', { bubbles: true }));
       targetInput.dispatchEvent(new Event('change', { bubbles: true }));
+
+      // If autoSubmit and target is in Aioha modal, click the proceed button
+      if (autoSubmit) {
+        const aiohaModal = targetInput.closest('#aioha-modal');
+        if (aiohaModal && value.trim()) {
+          // Longer delay to ensure React has processed the input value
+          setTimeout(() => {
+            // Find the proceed button more carefully - look for the arrow button next to input
+            // The Aioha modal has a form with an input and a button with an SVG arrow icon
+            const inputContainer = targetInput.closest('form') || targetInput.closest('div');
+            let proceedBtn = null;
+
+            if (inputContainer) {
+              // Try to find submit button in the same container
+              proceedBtn = inputContainer.querySelector('button[type="submit"]');
+              // Or find a button with SVG (the arrow icon button)
+              if (!proceedBtn) {
+                proceedBtn = inputContainer.querySelector('button svg')?.closest('button');
+              }
+            }
+
+            // Fallback: look in the whole modal
+            if (!proceedBtn) {
+              proceedBtn = aiohaModal.querySelector('button[type="submit"]') ||
+                          aiohaModal.querySelector('form button:last-of-type');
+            }
+
+            if (proceedBtn) {
+              console.log('[TVKeyboardContext] Auto-clicking proceed button in Aioha modal, value:', value);
+              proceedBtn.click();
+            } else {
+              console.log('[TVKeyboardContext] Could not find proceed button in Aioha modal');
+            }
+          }, 300);
+        }
+      }
     }
     setTargetInput(null);
   }, [targetInput, value]);
@@ -74,7 +110,8 @@ export const TVKeyboardProvider = ({ children }) => {
       console.log('[TVKeyboardContext] Calling onSubmitCallback...');
       onSubmitCallback(finalValue);
     }
-    closeKeyboard();
+    // Pass autoSubmit=true to trigger form submission for Aioha modal
+    closeKeyboard(true);
   }, [onSubmitCallback, closeKeyboard]);
 
   // Listen for Enter key on focused inputs in TV mode

@@ -50,6 +50,15 @@ const TVProgressBar = ({
   const [focusedIndex, setFocusedIndex] = useState(3);
   const [focusArea, setFocusArea] = useState(FOCUS_AREA_CONTROLS);
 
+  // Reset internal focus state when progress bar loses focus
+  useEffect(() => {
+    if (hasFocus === false) {
+      // Reset to controls when losing focus
+      setFocusArea(FOCUS_AREA_CONTROLS);
+      setFocusedIndex(3); // Reset to fullscreen button
+    }
+  }, [hasFocus]);
+
   // Handle keyboard navigation
   const handleKeyDown = useCallback((event) => {
     console.log('[TVProgressBar] handleKeyDown called, keyCode:', event.keyCode, 'showControls:', showControls);

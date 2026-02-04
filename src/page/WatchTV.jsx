@@ -61,6 +61,19 @@ function WatchTV() {
 
   // TV-specific state
   const [focusArea, setFocusArea] = useState('progressbar'); // 'progressbar' | 'sidebar' | 'video' | 'tabs' | 'tabContent'
+
+  // Reset focus and state when navigating to a new video
+  useEffect(() => {
+    setFocusArea('progressbar');
+    setSidebarFocusIndex(0);
+    setCommentFocusIndex(-1);
+    setCommentInputFocused(false);
+    setVideoCurrentTime(0);
+    setVideoDuration(0);
+    setIsPlaying(false);
+    setIsPlayerReady(false);
+    // Don't reset isFullscreen - player ready event will trigger fullscreen
+  }, [v]);
   const [sidebarFocusIndex, setSidebarFocusIndex] = useState(0);
   const [tabFocusIndex, setTabFocusIndex] = useState(0); // 0 = comments tab, 1 = description tab
   const [commentFocusIndex, setCommentFocusIndex] = useState(-1); // Index of focused comment in tabContent
@@ -225,6 +238,67 @@ function WatchTV() {
     }
   }, [authenticated, user, author]);
 
+  // Jump to comment section and open keyboard
+  const handleJumpToComment = useCallback(() => {
+    // Exit fullscreen if needed
+    if (isFullscreen) {
+      triggerFullscreen();
+    }
+    // Switch to comments tab
+    setActiveTab('comments');
+    setFocusArea('tabContent');
+    setCommentInputFocused(true);
+    setCommentFocusIndex(-1);
+    // Scroll to comment input and open keyboard
+    setTimeout(() => {
+      const commentWrapper = document.querySelector('.add-comment-wrap[data-tv-custom-keyboard="true"]');
+      if (commentWrapper) {
+        commentWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => commentWrapper.click(), 100);
+      }
+    }, 100);
+    setShowContextMenu(false);
+  }, [isFullscreen, triggerFullscreen]);
+
+  // Expand/show description
+  const handleExpandDescription = useCallback(() => {
+    // Exit fullscreen if needed
+    if (isFullscreen) {
+      triggerFullscreen();
+    }
+    // Switch to description tab
+    setActiveTab('description');
+    setFocusArea('tabContent');
+    // Scroll to description
+    setTimeout(() => {
+      tabContentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 100);
+    setShowContextMenu(false);
+  }, [isFullscreen, triggerFullscreen]);
+
+  // Listen for media control events from parent Tizen wrapper
+  useEffect(() => {
+    const handleMediaControl = (event) => {
+      const action = event.detail?.action;
+      switch (action) {
+        case 'toggle-play':
+          triggerTogglePlay();
+          break;
+        case 'play':
+          triggerPlay();
+          break;
+        case 'pause':
+          triggerPause();
+          break;
+        default:
+          break;
+      }
+    };
+
+    document.addEventListener('tv-media-control', handleMediaControl);
+    return () => document.removeEventListener('tv-media-control', handleMediaControl);
+  }, [triggerPlay, triggerPause, triggerTogglePlay]);
+
   // Listen for messages from player iframe
   useEffect(() => {
     const handleMessage = (event) => {
@@ -295,7 +369,12 @@ function WatchTV() {
       // Don't handle if context menu, tip overlay, comment modal, or keyboard is open
       if (showContextMenu || showTipOverlay || commentModalOpen || isKeyboardOpen) return;
 
-      // Handle main navigation sidebar when it's open
+      // Don't handle if Aioha login modal is open (check for modal in DOM)
+      const aiohaModal = document.getElementById('aioha-modal');
+      if (aiohaModal) return;
+
+      // Handle main navigation sidebar when it's open - use stopImmediatePropagation
+      // to prevent other handlers (like TVProgressBar, TVRecommendedSidebar) from also handling
       if (tvSidebarVisible && globalTvFocusArea === 'sidebar') {
         switch (event.keyCode) {
           case 38: // Up - move up in sidebar
@@ -303,7 +382,7 @@ function WatchTV() {
               setGlobalTvSidebarFocusIndex(tvSidebarFocusIndex - 1);
             }
             event.preventDefault();
-            event.stopPropagation();
+            event.stopImmediatePropagation();
             return;
 
           case 40: // Down - move down in sidebar
@@ -311,13 +390,18 @@ function WatchTV() {
               setGlobalTvSidebarFocusIndex(tvSidebarFocusIndex + 1);
             }
             event.preventDefault();
-            event.stopPropagation();
+            event.stopImmediatePropagation();
             return;
 
           case 39: // Right - close sidebar and return to watch page
             closeMainSidebar();
             event.preventDefault();
-            event.stopPropagation();
+            event.stopImmediatePropagation();
+            return;
+
+          case 37: // Left - do nothing, stay in sidebar
+            event.preventDefault();
+            event.stopImmediatePropagation();
             return;
 
           case 13: // Enter - activate sidebar item
@@ -332,17 +416,19 @@ function WatchTV() {
               }
             }
             event.preventDefault();
-            event.stopPropagation();
+            event.stopImmediatePropagation();
             return;
 
           case 10009: // Samsung TV Back
           case 27: // Escape
             closeMainSidebar();
             event.preventDefault();
-            event.stopPropagation();
+            event.stopImmediatePropagation();
             return;
 
           default:
+            // For any other key while sidebar is open, prevent watch page from handling
+            event.stopImmediatePropagation();
             return;
         }
       }
@@ -432,10 +518,8 @@ function WatchTV() {
               }
             }
             event.preventDefault();
-          } else if (focusArea === 'sidebar' && sidebarFocusIndex > 0) {
-            setSidebarFocusIndex(prev => prev - 1);
-            event.preventDefault();
           }
+          // Note: sidebar up/down is handled by TVRecommendedSidebar component
           break;
         case 40: // Down arrow
           if (focusArea === 'video') {
@@ -485,10 +569,8 @@ function WatchTV() {
               tabContentRef.current?.scrollBy({ top: 100, behavior: 'smooth' });
             }
             event.preventDefault();
-          } else if (focusArea === 'sidebar' && sidebarFocusIndex < suggestedVideos.length - 1) {
-            setSidebarFocusIndex(prev => prev + 1);
-            event.preventDefault();
           }
+          // Note: sidebar up/down is handled by TVRecommendedSidebar component
           break;
         case 13: // Enter
           if (focusArea === 'video') {
@@ -516,14 +598,21 @@ function WatchTV() {
           break;
         case 10135: // Samsung Menu button
         case 457: // Info button
-          setShowContextMenu(true);
+          // Exit fullscreen first before showing context menu
+          if (isFullscreen) {
+            triggerFullscreen();
+            setTimeout(() => setShowContextMenu(true), 300);
+          } else {
+            setShowContextMenu(true);
+          }
           event.preventDefault();
           break;
-        // Media keys
+        // Media keys - handle regardless of focus area
         case 10252: // Samsung Play/Pause
         case 415: // Play
         case 19: // Pause
         case 179: // Play/Pause
+        case 10254: // Samsung MediaPause
           triggerTogglePlay();
           event.preventDefault();
           break;
@@ -594,7 +683,7 @@ function WatchTV() {
                 onNavigateLeft={handleProgressBarNavigateLeft}
                 onNavigateRight={handleProgressBarNavigateRight}
                 onNavigateDown={handleProgressBarNavigateDown}
-                hasFocus={focusArea === 'progressbar'}
+                hasFocus={focusArea === 'progressbar' && !tvSidebarVisible}
               />
             )}
           </div>
@@ -725,6 +814,8 @@ function WatchTV() {
           setShowContextMenu(false);
           setShowTipOverlay(true);
         }}
+        onJumpToComment={handleJumpToComment}
+        onExpandDescription={handleExpandDescription}
         creatorName={author}
         tags={videoDetails?.tags || []}
       />
